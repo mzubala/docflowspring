@@ -10,6 +10,13 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>docflow</artifactId>
+    <dependencies>
+        <dependency>
+            <groupId>pl.com.bottega</groupId>
+            <artifactId>eventsourcing</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+    </dependencies>
 
 
 </project>
