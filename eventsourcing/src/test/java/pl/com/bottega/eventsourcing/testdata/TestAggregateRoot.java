@@ -29,27 +29,6 @@ public class TestAggregateRoot extends AggregateRoot {
         applyChange(new TestValueChangedEvent(this.id, clock.instant(), newState));
     }
 
-    @Override
-    protected void dispatch(Event event) {
-        // impl with vavr.io:
-        Match(event).of(
-            Case($(instanceOf(TestAggregateCreatedEvent.class)), evt -> run(() -> apply(evt))),
-            Case($(instanceOf(TestValueChangedEvent.class)), evt -> run(() -> apply(evt))),
-            Case($(), evt -> run(() -> eventNotSupported(event)))
-        );
-
-        /*
-        // Alternatively big if:
-        if(event instanceof TestAggregateCreatedEvent) {
-            apply((TestAggregateCreatedEvent) event);
-        } else if(event instanceof TestValueChangedEvent) {
-            apply((TestValueChangedEvent) event);
-        } else {
-            eventNotSupported(event);
-        }
-        */
-    }
-
     private void apply(TestAggregateCreatedEvent event) {
         this.id = event.getAggregateId();
     }
