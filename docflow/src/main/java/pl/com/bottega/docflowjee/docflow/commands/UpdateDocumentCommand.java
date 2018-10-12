@@ -11,4 +11,13 @@ public class UpdateDocumentCommand implements Command {
     public String title;
     public String content;
 
+    public UpdateDocumentCommand() {
+    }
+
+    public UpdateDocumentCommand(UUID documentId, Long employeeId, String title, String content) {
+        this.documentId = documentId;
+        this.employeeId = employeeId;
+        this.title = title;
+        this.content = content;
+    }
 }

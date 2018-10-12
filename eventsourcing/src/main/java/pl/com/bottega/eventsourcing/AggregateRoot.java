@@ -23,7 +23,7 @@ public abstract class AggregateRoot {
         this.changes.clear();
     }
 
-    public void loadFromHistory(List<Event> history) {
+    void loadFromHistory(List<Event> history) {
         history.forEach(it -> applyChange(it, false));
     }
 

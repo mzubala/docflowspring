@@ -9,4 +9,8 @@ public class CreateDocumentCommand implements Command {
     public UUID documentId;
     public Long employeeId;
 
+    public CreateDocumentCommand(UUID documentId, Long employeeId) {
+        this.documentId = documentId;
+        this.employeeId = employeeId;
+    }
 }
