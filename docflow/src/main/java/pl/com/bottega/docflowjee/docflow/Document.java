@@ -20,12 +20,7 @@ public class Document extends AggregateRoot {
     public Document(CreateDocumentCommand cmd, Clock clock) {
         this.clock = clock;
     }
-
-    @Override
-    protected void dispatch(Event event) {
-
-    }
-
+    
     public void update(UpdateDocumentCommand cmd) {
 
     }
