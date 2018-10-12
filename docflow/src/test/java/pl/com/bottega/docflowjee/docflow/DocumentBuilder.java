@@ -1,5 +1,7 @@
 package pl.com.bottega.docflowjee.docflow;
 
+import org.mockito.internal.util.collections.Sets;
+import pl.com.bottega.docflowjee.docflow.commands.ArchiveDocumentCommand;
 import pl.com.bottega.docflowjee.docflow.commands.CreateDocumentCommand;
 import pl.com.bottega.docflowjee.docflow.commands.PassToVerificationCommand;
 import pl.com.bottega.docflowjee.docflow.commands.PublishDocumentCommand;
@@ -21,6 +23,7 @@ public class DocumentBuilder {
     private boolean passedToVerification;
     private boolean verified;
     private Set<Long> departmentIds;
+    private boolean archived;
 
     public static Document newDocument(UUID id, Clock clock, Long employeeId) {
         return new DocumentBuilder(id, clock, employeeId).build();
@@ -56,6 +59,9 @@ public class DocumentBuilder {
         if(departmentIds != null) {
             document.publish(new PublishDocumentCommand(id, employeeId, departmentIds));
         }
+        if(archived) {
+            document.archive(new ArchiveDocumentCommand(id, employeeId));
+        }
         document.markChangesCommited();
         return document;
     }
@@ -86,6 +92,19 @@ public class DocumentBuilder {
     public DocumentBuilder publishedFor(Set<Long> departmentIds) {
         verified();
         this.departmentIds = departmentIds;
+        return this;
+    }
+
+    public DocumentBuilder draft() {
+        return withTitleAndContent("any", "any");
+    }
+
+    public DocumentBuilder published() {
+        return publishedFor(Sets.newSet(1L));
+    }
+
+    public DocumentBuilder archived() {
+        archived = true;
         return this;
     }
 }

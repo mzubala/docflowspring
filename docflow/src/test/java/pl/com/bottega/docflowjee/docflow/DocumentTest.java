@@ -27,6 +27,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static pl.com.bottega.docflowjee.docflow.AggregateRootAssertions.assertThatAggregate;
 import static pl.com.bottega.docflowjee.docflow.DocumentBuilder.newDocument;
 
@@ -75,6 +76,21 @@ public class DocumentTest {
     }
 
     @Test
+    public void updatesDocumentSentToVerification() {
+        // given
+        Document document = documentBuilder.passedToVerification().build();
+
+        // when
+        document.update(new UpdateDocumentCommand(id, employeeId, "new test", "new test"));
+
+        // then
+        assertThatAggregate(document).emittedExactly(
+            new DocumentMovedBackToDraft(id, clock.instant(), firstVersion),
+            new DocumentUpdatedEvent(id, clock.instant(), "new test", "new test", firstVersion)
+        );
+    }
+
+    @Test
     public void verifiesDocument() {
         // given
         Document document = documentBuilder.passedToVerification().build();
@@ -84,6 +100,21 @@ public class DocumentTest {
 
         // then
         assertThatAggregate(document).emittedExactly(new DocumentVerifiedEvent(id, clock.instant(), firstVersion));
+    }
+
+    @Test
+    public void updatesVerifiedDocument() {
+        // given
+        Document document = documentBuilder.verified().build();
+
+        // when
+        document.update(new UpdateDocumentCommand(id, employeeId, "new test", "new test"));
+
+        // then
+        assertThatAggregate(document).emittedExactly(
+            new DocumentMovedBackToDraft(id, clock.instant(), firstVersion),
+            new DocumentUpdatedEvent(id, clock.instant(), "new test", "new test", firstVersion)
+        );
     }
 
     @Test
@@ -127,6 +158,31 @@ public class DocumentTest {
     }
 
     @Test
+    public void cannotPublishUnverifiedDocument() {
+        // given
+        List<Document> docs = List.of(
+            documentBuilder.draft().build(),
+            documentBuilder.passedToVerification().build()
+        );
+
+        // then
+        docs.forEach((doc) ->
+            assertThatThrownBy(() -> doc.publish(new PublishDocumentCommand(id, employeeId, departmentIds)))
+                .isInstanceOf(IllegalDocumentOperationException.class)
+        );
+    }
+
+    @Test
+    public void cannotEditPublishedDocument() {
+        // given
+        Document document = documentBuilder.published().build();
+
+        //then
+        assertThatThrownBy(() -> document.update(new UpdateDocumentCommand(id, employeeId, "test", "test")))
+            .isInstanceOf(IllegalDocumentOperationException.class);
+    }
+
+    @Test
     public void createsNewDocumentVersion() {
         // given
         Document document = documentBuilder.publishedFor(departmentIds).build();
@@ -156,6 +212,24 @@ public class DocumentTest {
         docs.forEach((doc) -> {
             assertThatAggregate(doc).emittedExactly(new DocumentArchivedEvent(id, clock.instant(), firstVersion));
         });
+    }
+
+    @Test
+    public void cannotDoAnythingWithArchivedDocument() {
+        //given
+        Document document = documentBuilder.archived().build();
+        List<Runnable> actions = List.of(
+            () -> document.archive(new ArchiveDocumentCommand(id, employeeId)),
+            () -> document.update(new UpdateDocumentCommand(id, employeeId, "test", "test")),
+            () -> document.publish(new PublishDocumentCommand(id, employeeId, departmentIds)),
+            () -> document.verify(new VerifyDocumentCommand(id, employeeId)),
+            () -> document.passToVerification(new PassToVerificationCommand(id, employeeId)),
+            () -> document.createNewVersion(new CreateNewDocumentVersionCommand(id, employeeId)),
+            () -> document.reject(new RejectDocumentCommand(id, employeeId, "test"))
+        );
+
+        // then
+        actions.forEach((action) -> assertThatThrownBy(action::run).isInstanceOf(IllegalDocumentOperationException.class));
     }
 
     @Test
