@@ -85,7 +85,6 @@ public class DocumentTest {
 
         // then
         assertThatAggregate(document).emittedExactly(
-            new DocumentMovedBackToDraft(id, clock.instant(), firstVersion),
             new DocumentUpdatedEvent(id, clock.instant(), "new test", "new test", firstVersion)
         );
     }
@@ -112,7 +111,6 @@ public class DocumentTest {
 
         // then
         assertThatAggregate(document).emittedExactly(
-            new DocumentMovedBackToDraft(id, clock.instant(), firstVersion),
             new DocumentUpdatedEvent(id, clock.instant(), "new test", "new test", firstVersion)
         );
     }
