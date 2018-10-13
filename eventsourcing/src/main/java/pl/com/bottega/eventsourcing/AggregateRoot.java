@@ -1,7 +1,5 @@
 package pl.com.bottega.eventsourcing;
 
-import io.vavr.control.Try;
-
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Collections;

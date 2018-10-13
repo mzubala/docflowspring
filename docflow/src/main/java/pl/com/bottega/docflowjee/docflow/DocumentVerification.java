@@ -15,7 +15,7 @@ public class DocumentVerification {
     }
 
     public void reject(RejectDocumentCommand cmd) {
-        
+
     }
 
 }
