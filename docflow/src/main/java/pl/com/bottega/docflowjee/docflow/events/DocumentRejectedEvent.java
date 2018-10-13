@@ -30,4 +30,12 @@ public class DocumentRejectedEvent extends Event {
     public int hashCode() {
         return Objects.hash(super.hashCode(), reason, version);
     }
+
+    @Override
+    public String toString() {
+        return "DocumentRejectedEvent{" +
+            "reason='" + reason + '\'' +
+            ", version=" + version +
+            "} " + super.toString();
+    }
 }
