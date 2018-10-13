@@ -42,7 +42,7 @@ public class Document extends AggregateRoot {
         this.clock = clock;
         applyChange(new DocumentCreatedEvent(cmd.documentId, clock.instant(), cmd.employeeId));
     }
-    
+
     public void update(UpdateDocumentCommand cmd) {
         status.ensureOpPermitted(UPDATE);
         applyChange(new DocumentUpdatedEvent(id, cmd.employeeId, clock.instant(), cmd.title, cmd.content, version));

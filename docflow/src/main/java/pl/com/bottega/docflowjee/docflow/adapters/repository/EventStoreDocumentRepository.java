@@ -1,5 +1,7 @@
-package pl.com.bottega.docflowjee.docflow;
+package pl.com.bottega.docflowjee.docflow.adapters.repository;
 
+import pl.com.bottega.docflowjee.docflow.Document;
+import pl.com.bottega.docflowjee.docflow.DocumentRepository;
 import pl.com.bottega.eventsourcing.EventStoreRepository;
 
 import java.util.UUID;
