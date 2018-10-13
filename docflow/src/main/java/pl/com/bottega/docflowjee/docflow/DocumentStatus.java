@@ -7,15 +7,16 @@ import static pl.com.bottega.docflowjee.docflow.DocumentOperation.ARCHIVE;
 import static pl.com.bottega.docflowjee.docflow.DocumentOperation.CREATE_NEW_VERSION;
 import static pl.com.bottega.docflowjee.docflow.DocumentOperation.PASS_TO_VERIFICATION;
 import static pl.com.bottega.docflowjee.docflow.DocumentOperation.PUBLISH;
+import static pl.com.bottega.docflowjee.docflow.DocumentOperation.REJECT;
 import static pl.com.bottega.docflowjee.docflow.DocumentOperation.UPDATE;
 import static pl.com.bottega.docflowjee.docflow.DocumentOperation.VERIFY;
 
 enum DocumentStatus {
 
     DRAFT(UPDATE, PASS_TO_VERIFICATION, ARCHIVE),
-    WAITING_VERIFICATION(UPDATE, VERIFY, ARCHIVE),
+    WAITING_VERIFICATION(UPDATE, VERIFY, ARCHIVE, REJECT),
     VERIFIED(UPDATE, PUBLISH, ARCHIVE),
-    PUBLISHED(ARCHIVE, CREATE_NEW_VERSION),
+    PUBLISHED(ARCHIVE, CREATE_NEW_VERSION, PUBLISH),
     ARCHIVED;
 
     private Set<DocumentOperation> allowedOperations;
@@ -32,5 +33,5 @@ enum DocumentStatus {
 }
 
 enum DocumentOperation {
-    UPDATE, PASS_TO_VERIFICATION, VERIFY, PUBLISH, ARCHIVE, CREATE_NEW_VERSION
+    UPDATE, PASS_TO_VERIFICATION, REJECT, VERIFY, PUBLISH, ARCHIVE, CREATE_NEW_VERSION
 }

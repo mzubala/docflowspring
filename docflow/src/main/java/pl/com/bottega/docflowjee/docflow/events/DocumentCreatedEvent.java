@@ -14,6 +14,10 @@ public class DocumentCreatedEvent extends Event {
         this.employeeId = employeeId;
     }
 
+    public Long getEmployeeId() {
+        return employeeId;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

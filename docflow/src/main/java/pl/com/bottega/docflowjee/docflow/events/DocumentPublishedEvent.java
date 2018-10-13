@@ -3,6 +3,7 @@ package pl.com.bottega.docflowjee.docflow.events;
 import pl.com.bottega.eventsourcing.Event;
 
 import java.time.Instant;
+import java.util.Collection;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
@@ -16,6 +17,10 @@ public class DocumentPublishedEvent extends Event {
         super(id, instant);
         this.departmentIds = departmentIds;
         this.version = version;
+    }
+
+    public Set<Long> getDepartmentIds() {
+        return departmentIds;
     }
 
     @Override

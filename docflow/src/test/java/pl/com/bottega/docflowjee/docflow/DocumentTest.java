@@ -29,39 +29,42 @@ import java.util.UUID;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static pl.com.bottega.docflowjee.docflow.AggregateRootAssertions.assertThatAggregate;
-import static pl.com.bottega.docflowjee.docflow.DocumentBuilder.newDocument;
 
 public class DocumentTest {
 
     private UUID id = UUID.randomUUID();
     private Clock clock = Clock.fixed(Instant.now(), ZoneId.systemDefault());
-    private Long employeeId = 1L;
-    private DocumentBuilder documentBuilder = new DocumentBuilder(id, clock, employeeId);
+    private Long editorId = 1L;
+    private Long otherEditorId = 2L;
+    private Long verifierId = 3L;
+    private Long publisherId = 4L;
+    private DocumentBuilder documentBuilder = new DocumentBuilder().id(id).clock(clock).editorId(editorId)
+        .verifierId(verifierId).publisherId(publisherId);
     private Set<Long> departmentIds = Sets.newSet(1L, 2L);
     private Integer firstVersion = 1;
-    private Integer secondVersion = 1;
+    private Integer secondVersion = 2;
 
     @Test
     public void createsDocument() {
         //when
-        Document document = new Document(new CreateDocumentCommand(id, employeeId), clock);
+        Document document = new Document(new CreateDocumentCommand(id, editorId), clock);
 
         // then
-        assertThatAggregate(document).emittedExactly(new DocumentCreatedEvent(id, clock.instant(), employeeId));
+        assertThatAggregate(document).emittedExactly(new DocumentCreatedEvent(id, clock.instant(), editorId));
     }
 
     @Test
     public void updatesDocument() {
         //given
-        Document document = newDocument(id, clock, employeeId);
+        Document document = documentBuilder.build();
         String title = "test title";
         String content = "test content";
 
         //when
-        document.update(new UpdateDocumentCommand(id, employeeId, title, content));
+        document.update(new UpdateDocumentCommand(id, editorId, title, content));
 
         // then
-        assertThatAggregate(document).emittedExactly(new DocumentUpdatedEvent(id, clock.instant(), title, content, firstVersion));
+        assertThatAggregate(document).emittedExactly(new DocumentUpdatedEvent(id, editorId, clock.instant(), title, content, firstVersion));
     }
 
     @Test
@@ -70,9 +73,24 @@ public class DocumentTest {
         Document document = documentBuilder.withTitleAndContent("test", "test").build();
 
         // when
-        document.passToVerification(new PassToVerificationCommand(id, employeeId));
+        document.passToVerification(new PassToVerificationCommand(id, editorId));
 
         assertThatAggregate(document).emittedExactly(new DocumentPassedToVerification(id, clock.instant(), firstVersion));
+    }
+
+    @Test
+    public void cannotSendToVerificationWhenDocumentHasEmptyContentOrTitle() {
+        // given
+        List<Document> docs = List.of(
+            documentBuilder.withTitleAndContent("", "test").build(),
+            documentBuilder.withTitleAndContent("", null).build()
+        );
+
+        //then
+        docs.forEach((doc) -> assertThatThrownBy(() ->
+            doc.passToVerification(new PassToVerificationCommand(id, editorId)))
+            .isInstanceOf(IllegalDocumentOperationException.class)
+        );
     }
 
     @Test
@@ -81,11 +99,11 @@ public class DocumentTest {
         Document document = documentBuilder.passedToVerification().build();
 
         // when
-        document.update(new UpdateDocumentCommand(id, employeeId, "new test", "new test"));
+        document.update(new UpdateDocumentCommand(id, editorId, "new test", "new test"));
 
         // then
         assertThatAggregate(document).emittedExactly(
-            new DocumentUpdatedEvent(id, clock.instant(), "new test", "new test", firstVersion)
+            new DocumentUpdatedEvent(id, editorId, clock.instant(), "new test", "new test", firstVersion)
         );
     }
 
@@ -95,7 +113,7 @@ public class DocumentTest {
         Document document = documentBuilder.passedToVerification().build();
 
         // when
-        document.verify(new VerifyDocumentCommand(id, employeeId));
+        document.verify(new VerifyDocumentCommand(id, verifierId));
 
         // then
         assertThatAggregate(document).emittedExactly(new DocumentVerifiedEvent(id, clock.instant(), firstVersion));
@@ -107,11 +125,11 @@ public class DocumentTest {
         Document document = documentBuilder.verified().build();
 
         // when
-        document.update(new UpdateDocumentCommand(id, employeeId, "new test", "new test"));
+        document.update(new UpdateDocumentCommand(id, editorId, "new test", "new test"));
 
         // then
         assertThatAggregate(document).emittedExactly(
-            new DocumentUpdatedEvent(id, clock.instant(), "new test", "new test", firstVersion)
+            new DocumentUpdatedEvent(id, editorId, clock.instant(), "new test", "new test", firstVersion)
         );
     }
 
@@ -122,7 +140,7 @@ public class DocumentTest {
         Document document = documentBuilder.passedToVerification().build();
 
         // when
-        document.reject(new RejectDocumentCommand(id, employeeId, reason));
+        document.reject(new RejectDocumentCommand(id, editorId, reason));
 
         // then
         assertThatAggregate(document).emittedExactly(new DocumentRejectedEvent(id, clock.instant(), reason, firstVersion));
@@ -134,7 +152,7 @@ public class DocumentTest {
         Document document = documentBuilder.verified().build();
 
         // when
-        document.publish(new PublishDocumentCommand(id, employeeId, departmentIds));
+        document.publish(new PublishDocumentCommand(id, editorId, departmentIds));
 
         // then
         assertThatAggregate(document).emittedExactly(new DocumentPublishedEvent(id, clock.instant(), departmentIds, firstVersion));
@@ -149,7 +167,7 @@ public class DocumentTest {
         // when
         Set<Long> moreDepartmentIds = new HashSet<>(departmentIds);
         moreDepartmentIds.add(4L);
-        document.publish(new PublishDocumentCommand(id, employeeId, moreDepartmentIds));
+        document.publish(new PublishDocumentCommand(id, editorId, moreDepartmentIds));
 
         // then
         assertThatAggregate(document).emittedExactly(new DocumentPublishedEvent(id, clock.instant(), Sets.newSet(4L), firstVersion));
@@ -165,7 +183,7 @@ public class DocumentTest {
 
         // then
         docs.forEach((doc) ->
-            assertThatThrownBy(() -> doc.publish(new PublishDocumentCommand(id, employeeId, departmentIds)))
+            assertThatThrownBy(() -> doc.publish(new PublishDocumentCommand(id, editorId, departmentIds)))
                 .isInstanceOf(IllegalDocumentOperationException.class)
         );
     }
@@ -176,7 +194,7 @@ public class DocumentTest {
         Document document = documentBuilder.published().build();
 
         //then
-        assertThatThrownBy(() -> document.update(new UpdateDocumentCommand(id, employeeId, "test", "test")))
+        assertThatThrownBy(() -> document.update(new UpdateDocumentCommand(id, editorId, "test", "test")))
             .isInstanceOf(IllegalDocumentOperationException.class);
     }
 
@@ -186,7 +204,7 @@ public class DocumentTest {
         Document document = documentBuilder.publishedFor(departmentIds).build();
 
         // when
-        document.createNewVersion(new CreateNewDocumentVersionCommand(id, employeeId));
+        document.createNewVersion(new CreateNewDocumentVersionCommand(id, editorId));
 
         // then
         assertThatAggregate(document).emittedExactly(new NewDocumentVersionCreatedEvent(id, clock.instant(), secondVersion));
@@ -204,7 +222,7 @@ public class DocumentTest {
         );
 
         // when
-        docs.forEach((doc) -> doc.archive(new ArchiveDocumentCommand(id, employeeId)));
+        docs.forEach((doc) -> doc.archive(new ArchiveDocumentCommand(id, editorId)));
 
         //then
         docs.forEach((doc) -> {
@@ -217,13 +235,13 @@ public class DocumentTest {
         //given
         Document document = documentBuilder.archived().build();
         List<Runnable> actions = List.of(
-            () -> document.archive(new ArchiveDocumentCommand(id, employeeId)),
-            () -> document.update(new UpdateDocumentCommand(id, employeeId, "test", "test")),
-            () -> document.publish(new PublishDocumentCommand(id, employeeId, departmentIds)),
-            () -> document.verify(new VerifyDocumentCommand(id, employeeId)),
-            () -> document.passToVerification(new PassToVerificationCommand(id, employeeId)),
-            () -> document.createNewVersion(new CreateNewDocumentVersionCommand(id, employeeId)),
-            () -> document.reject(new RejectDocumentCommand(id, employeeId, "test"))
+            () -> document.archive(new ArchiveDocumentCommand(id, editorId)),
+            () -> document.update(new UpdateDocumentCommand(id, editorId, "test", "test")),
+            () -> document.publish(new PublishDocumentCommand(id, editorId, departmentIds)),
+            () -> document.verify(new VerifyDocumentCommand(id, editorId)),
+            () -> document.passToVerification(new PassToVerificationCommand(id, editorId)),
+            () -> document.createNewVersion(new CreateNewDocumentVersionCommand(id, editorId)),
+            () -> document.reject(new RejectDocumentCommand(id, editorId, "test"))
         );
 
         // then
@@ -234,16 +252,35 @@ public class DocumentTest {
     public void publishesDocumentForDepartmentsFromPreviousVersionPublication() {
         // given
         Document document = documentBuilder.publishedFor(departmentIds).build();
-        document.createNewVersion(new CreateNewDocumentVersionCommand(id, employeeId));
+        document.createNewVersion(new CreateNewDocumentVersionCommand(id, editorId));
+        document.update(new UpdateDocumentCommand(id, editorId, "test", "test"));
+        document.passToVerification(new PassToVerificationCommand(id, editorId));
+        document.verify(new VerifyDocumentCommand(id, verifierId));
         document.markChangesCommited();
 
         // when
-        document.publish(new PublishDocumentCommand(id, employeeId, Sets.newSet(3L), true));
+        document.publish(new PublishDocumentCommand(id, editorId, Sets.newSet(3L), true));
 
         // then
         assertThatAggregate(document).emittedExactly(
             new DocumentPublishedEvent(id, clock.instant(), Sets.newSet(1L, 2L, 3L), secondVersion)
         );
+    }
+
+    @Test
+    public void editorsCannotVerifyDocument() {
+        // given
+        Document document = documentBuilder.build();
+        document.update(new UpdateDocumentCommand(id, editorId, "title", "content"));
+        document.update(new UpdateDocumentCommand(id, otherEditorId, "title2", "content2"));
+        document.passToVerification(new PassToVerificationCommand(id, editorId));
+
+        // then
+        assertThatThrownBy(() -> document.verify(new VerifyDocumentCommand(id, editorId)))
+            .isInstanceOf(IllegalDocumentOperationException.class);
+        assertThatThrownBy(() -> document.verify(new VerifyDocumentCommand(id, otherEditorId)))
+            .isInstanceOf(IllegalDocumentOperationException.class);
+
     }
 
 }

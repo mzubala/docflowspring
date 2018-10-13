@@ -10,12 +10,26 @@ public class DocumentUpdatedEvent extends Event {
     private String title;
     private String content;
     private Integer version;
+    private Long employeeId;
 
-    public DocumentUpdatedEvent(UUID id, Instant instant, String title, String content, Integer version) {
+    public DocumentUpdatedEvent(UUID id, Long employeeId, Instant instant, String title, String content, Integer version) {
         super(id, instant);
         this.title = title;
         this.content = content;
         this.version = version;
+        this.employeeId = employeeId;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public String getContent() {
+        return title;
+    }
+
+    public Long getEmployeeId() {
+        return employeeId;
     }
 
     @Override

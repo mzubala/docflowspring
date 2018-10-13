@@ -14,6 +14,10 @@ public class NewDocumentVersionCreatedEvent extends Event {
         this.version = version;
     }
 
+    public Integer getVersion() {
+        return version;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
