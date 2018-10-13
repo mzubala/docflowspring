@@ -27,4 +27,11 @@ public class DocumentCreatedEvent extends Event {
     public int hashCode() {
         return Objects.hash(super.hashCode(), employeeId);
     }
+
+    @Override
+    public String toString() {
+        return "DocumentCreatedEvent{" +
+            "employeeId=" + employeeId +
+            "} " + super.toString();
+    }
 }

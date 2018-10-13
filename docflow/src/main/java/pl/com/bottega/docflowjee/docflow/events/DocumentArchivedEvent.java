@@ -27,4 +27,11 @@ public class DocumentArchivedEvent extends Event {
     public int hashCode() {
         return Objects.hash(super.hashCode(), firstVersion);
     }
+
+    @Override
+    public String toString() {
+        return "DocumentArchivedEvent{" +
+            "firstVersion=" + firstVersion +
+            "} " + super.toString();
+    }
 }

@@ -27,4 +27,11 @@ public class DocumentPassedToVerification extends Event {
     public int hashCode() {
         return Objects.hash(super.hashCode(), version);
     }
+
+    @Override
+    public String toString() {
+        return "DocumentPassedToVerification{" +
+            "version=" + version +
+            "} " + super.toString();
+    }
 }

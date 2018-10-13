@@ -33,4 +33,13 @@ public class DocumentUpdatedEvent extends Event {
     public int hashCode() {
         return Objects.hash(super.hashCode(), title, content, version);
     }
+
+    @Override
+    public String toString() {
+        return "DocumentUpdatedEvent{" +
+            "title='" + title + '\'' +
+            ", content='" + content + '\'' +
+            ", version=" + version +
+            "} " + super.toString();
+    }
 }

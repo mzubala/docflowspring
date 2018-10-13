@@ -11,6 +11,7 @@ public class DocumentPublishedEvent extends Event {
     private Set<Long> departmentIds;
     private Integer version;
 
+
     public DocumentPublishedEvent(UUID id, Instant instant, Set<Long> departmentIds, Integer version) {
         super(id, instant);
         this.departmentIds = departmentIds;
@@ -30,5 +31,13 @@ public class DocumentPublishedEvent extends Event {
     @Override
     public int hashCode() {
         return Objects.hash(super.hashCode(), departmentIds, version);
+    }
+
+    @Override
+    public String toString() {
+        return "DocumentPublishedEvent{" +
+            "departmentIds=" + departmentIds +
+            ", version=" + version +
+            "} " + super.toString();
     }
 }
