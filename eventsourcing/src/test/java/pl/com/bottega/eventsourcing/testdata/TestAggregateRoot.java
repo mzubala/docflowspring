@@ -1,16 +1,9 @@
 package pl.com.bottega.eventsourcing.testdata;
 
 import pl.com.bottega.eventsourcing.AggregateRoot;
-import pl.com.bottega.eventsourcing.Event;
 
 import java.time.Clock;
 import java.util.UUID;
-
-import static io.vavr.API.$;
-import static io.vavr.API.Case;
-import static io.vavr.API.Match;
-import static io.vavr.API.run;
-import static io.vavr.Predicates.instanceOf;
 
 public class TestAggregateRoot extends AggregateRoot {
 

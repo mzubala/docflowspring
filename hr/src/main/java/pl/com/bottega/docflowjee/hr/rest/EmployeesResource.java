@@ -1,6 +1,5 @@
 package pl.com.bottega.docflowjee.hr.rest;
 
-import pl.com.bottega.docflowjee.hr.dao.EmployeeDao;
 import pl.com.bottega.docflowjee.hr.model.Employee;
 import pl.com.bottega.docflowjee.hr.service.EmployeesService;
 
