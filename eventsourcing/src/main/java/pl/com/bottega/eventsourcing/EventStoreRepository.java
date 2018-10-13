@@ -3,7 +3,6 @@ package pl.com.bottega.eventsourcing;
 import io.vavr.control.Try;
 
 import java.lang.reflect.Constructor;
-import java.lang.reflect.ParameterizedType;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;

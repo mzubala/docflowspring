@@ -3,7 +3,6 @@ package pl.com.bottega.docflowjee.docflow.events;
 import pl.com.bottega.eventsourcing.Event;
 
 import java.time.Instant;
-import java.util.Collection;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
