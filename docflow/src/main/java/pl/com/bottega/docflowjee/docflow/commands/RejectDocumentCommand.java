@@ -8,6 +8,7 @@ public class RejectDocumentCommand implements Command {
     public UUID documentId;
     public Long employeeId;
     public String reason;
+    public Long aggregateVersion;
 
     public RejectDocumentCommand(UUID id, Long employeeId, String reason) {
         this.documentId = id;

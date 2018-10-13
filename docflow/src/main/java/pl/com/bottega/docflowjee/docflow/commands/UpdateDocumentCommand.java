@@ -10,6 +10,7 @@ public class UpdateDocumentCommand implements Command {
     public Long employeeId;
     public String title;
     public String content;
+    public Long aggregateVersion;
 
     public UpdateDocumentCommand() {
     }

@@ -7,6 +7,7 @@ import java.util.UUID;
 public class VerifyDocumentCommand implements Command {
     private UUID documentId;
     private Long employeeId;
+    public Long aggregateVersion;
 
     public VerifyDocumentCommand(UUID id, Long employeeId) {
         this.documentId = id;

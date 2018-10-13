@@ -7,6 +7,7 @@ import java.util.UUID;
 public class ArchiveDocumentCommand implements Command {
     public UUID documentId;
     public Long employeeId;
+    public Long aggregateVersion;
 
     public ArchiveDocumentCommand(UUID documentId, Long employeeId) {
         this.documentId = documentId;

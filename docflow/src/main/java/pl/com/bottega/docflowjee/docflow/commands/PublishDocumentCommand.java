@@ -10,6 +10,7 @@ public class PublishDocumentCommand implements Command {
     public Long employeeId;
     public Set<Long> departmentIds;
     public boolean includeDepartmentsFromPreviousVersion;
+    public Long aggregateVersion;
 
     public PublishDocumentCommand(UUID documentId, Long employeeId, Set<Long> departmentIds) {
         this(documentId, employeeId, departmentIds, false);
