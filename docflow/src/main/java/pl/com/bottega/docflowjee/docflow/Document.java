@@ -9,7 +9,6 @@ import pl.com.bottega.docflowjee.docflow.commands.RejectDocumentCommand;
 import pl.com.bottega.docflowjee.docflow.commands.UpdateDocumentCommand;
 import pl.com.bottega.docflowjee.docflow.commands.VerifyDocumentCommand;
 import pl.com.bottega.eventsourcing.AggregateRoot;
-import pl.com.bottega.eventsourcing.Event;
 
 import java.time.Clock;
 
