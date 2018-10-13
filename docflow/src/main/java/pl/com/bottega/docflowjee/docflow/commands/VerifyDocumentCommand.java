@@ -5,8 +5,8 @@ import pl.com.bottega.eventsourcing.Command;
 import java.util.UUID;
 
 public class VerifyDocumentCommand implements Command {
-    private UUID documentId;
-    private Long employeeId;
+    public UUID documentId;
+    public Long employeeId;
     public Long aggregateVersion;
 
     public VerifyDocumentCommand(UUID id, Long employeeId) {
