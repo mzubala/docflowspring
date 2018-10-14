@@ -44,6 +44,9 @@ public class EventStoreRepository<A extends AggregateRoot> implements Repository
 
     @Override
     public void save(AggregateRoot aggregateRoot, Long expectedVersion) {
+        if(aggregateRoot.getUncommitedEvents().isEmpty()) {
+            return;
+        }
         eventStore.saveEvents(aggregateRoot.getId(), aggregateRoot.getUncommitedEvents(), expectedVersion);
         aggregateRoot.markChangesCommited();
     }

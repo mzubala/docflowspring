@@ -33,7 +33,7 @@ public class DocumentUpdatedEvent extends Event {
     }
 
     public String getContent() {
-        return title;
+        return content;
     }
 
     public Long getEmployeeId() {
