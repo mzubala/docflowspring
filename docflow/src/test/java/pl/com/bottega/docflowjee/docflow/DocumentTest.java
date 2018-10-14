@@ -68,6 +68,18 @@ public class DocumentTest {
     }
 
     @Test
+    public void doesNotUpdateDocumentTitleAndContentAreUnchanged() {
+        //given
+        Document document = documentBuilder.withTitleAndContent("test", "test").build();
+
+        //when
+        document.update(new UpdateDocumentCommand(id, editorId, "test", "test"));
+
+        //then
+        assertThatAggregate(document).emittedNoEvents();
+    }
+
+    @Test
     public void sendsDocumentToVerification() {
         // given
         Document document = documentBuilder.withTitleAndContent("test", "test").build();
@@ -76,6 +88,18 @@ public class DocumentTest {
         document.passToVerification(new PassToVerificationCommand(id, editorId));
 
         assertThatAggregate(document).emittedExactly(new DocumentPassedToVerification(id, clock.instant(), firstVersion));
+    }
+
+    @Test
+    public void doesNothingWhenTryingToSendToVerificationIfItWasAlreadyDone() {
+        // given
+        Document document = documentBuilder.passedToVerification().build();
+
+        // when
+        document.passToVerification(new PassToVerificationCommand(id, editorId));
+
+        // then
+        assertThatAggregate(document).emittedNoEvents();
     }
 
     @Test
@@ -120,6 +144,18 @@ public class DocumentTest {
     }
 
     @Test
+    public void doesNothingWhenTryingToVerifyIfItWasAlreadyDone() {
+        // given
+        Document document = documentBuilder.verified().build();
+
+        // when
+        document.verify(new VerifyDocumentCommand(id, editorId));
+
+        // then
+        assertThatAggregate(document).emittedNoEvents();
+    }
+
+    @Test
     public void updatesVerifiedDocument() {
         // given
         Document document = documentBuilder.verified().build();
@@ -147,6 +183,20 @@ public class DocumentTest {
     }
 
     @Test
+    public void doesNothingWhenTryingToRejectIfItWasAlreadyDone() {
+        // given
+        Document document = documentBuilder.passedToVerification().build();
+        document.reject(new RejectDocumentCommand(id, verifierId, "test"));
+        document.markChangesCommited();
+
+        // when
+        document.reject(new RejectDocumentCommand(id, verifierId, "test"));
+
+        // then
+        assertThatAggregate(document).emittedNoEvents();
+    }
+
+    @Test
     public void publishesDocumentForTheFirstTime() {
         // given
         Document document = documentBuilder.verified().build();
@@ -171,6 +221,18 @@ public class DocumentTest {
 
         // then
         assertThatAggregate(document).emittedExactly(new DocumentPublishedEvent(id, clock.instant(), Sets.newSet(4L), firstVersion));
+    }
+
+    @Test
+    public void doesNothingWhenTryingToPublishForAlreadyPublishedDepratments() {
+        // given
+        Document document = documentBuilder.publishedFor(departmentIds).build();
+
+        // when
+        document.publish(new PublishDocumentCommand(id, editorId, departmentIds));
+
+        // then
+        assertThatAggregate(document).emittedNoEvents();
     }
 
     @Test
@@ -208,7 +270,6 @@ public class DocumentTest {
 
         // then
         assertThatAggregate(document).emittedExactly(new NewDocumentVersionCreatedEvent(id, clock.instant(), secondVersion));
-
     }
 
     @Test

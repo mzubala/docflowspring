@@ -1,5 +1,6 @@
 package pl.com.bottega.docflowjee.docflow;
 
+import org.apache.commons.lang3.StringUtils;
 import pl.com.bottega.docflowjee.docflow.commands.ArchiveDocumentCommand;
 import pl.com.bottega.docflowjee.docflow.commands.CreateDocumentCommand;
 import pl.com.bottega.docflowjee.docflow.commands.CreateNewDocumentVersionCommand;
@@ -47,10 +48,16 @@ public class Document extends AggregateRoot {
 
     public void update(UpdateDocumentCommand cmd) {
         status.ensureOpPermitted(UPDATE);
+        if(StringUtils.equals(title, cmd.title) && StringUtils.equals(content, cmd.content)) {
+            return;
+        }
         applyChange(new DocumentUpdatedEvent(id, cmd.employeeId, clock.instant(), cmd.title, cmd.content, version));
     }
 
     public void passToVerification(PassToVerificationCommand cmd) {
+        if(status == WAITING_VERIFICATION) {
+            return;
+        }
         status.ensureOpPermitted(PASS_TO_VERIFICATION);
         if(isEmpty(title)) {
             throw new IllegalDocumentOperationException("title cannot be empty when passing to verification");
@@ -62,6 +69,9 @@ public class Document extends AggregateRoot {
     }
 
     public void verify(VerifyDocumentCommand cmd) {
+        if(status == VERIFIED) {
+            return;
+        }
         status.ensureOpPermitted(VERIFY);
         if(this.editors.contains(cmd.getEmployeeId())) {
             throw new IllegalDocumentOperationException("Editors cannot verify document");
@@ -70,13 +80,20 @@ public class Document extends AggregateRoot {
     }
 
     public void reject(RejectDocumentCommand cmd) {
+        if(status == DRAFT) {
+            return;
+        }
         status.ensureOpPermitted(REJECT);
         applyChange(new DocumentRejectedEvent(id, clock.instant(), cmd.reason, version));
     }
 
     public void publish(PublishDocumentCommand cmd) {
         status.ensureOpPermitted(PUBLISH);
-        applyChange(new DocumentPublishedEvent(id, clock.instant(), newDepartments(cmd), version));
+        Set<Long> newDepartments = newDepartments(cmd);
+        if(newDepartments.isEmpty()) {
+            return;
+        }
+        applyChange(new DocumentPublishedEvent(id, clock.instant(), newDepartments, version));
     }
 
     public void createNewVersion(CreateNewDocumentVersionCommand cmd) {
