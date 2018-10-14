@@ -14,4 +14,7 @@ public class CreateDocumentCommand implements Command {
         this.documentId = documentId;
         this.employeeId = employeeId;
     }
+
+    public CreateDocumentCommand() {
+    }
 }

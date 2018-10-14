@@ -21,4 +21,6 @@ public class UpdateDocumentCommand implements Command {
         this.title = title;
         this.content = content;
     }
+
+
 }

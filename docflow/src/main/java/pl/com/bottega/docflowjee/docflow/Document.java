@@ -38,6 +38,8 @@ import static pl.com.bottega.docflowjee.docflow.DocumentStatus.WAITING_VERIFICAT
 
 public class Document extends AggregateRoot {
 
+    Document() {}
+
     public Document(CreateDocumentCommand cmd, Clock clock) {
         this.clock = clock;
         applyChange(new DocumentCreatedEvent(cmd.documentId, clock.instant(), cmd.employeeId));
@@ -85,6 +87,10 @@ public class Document extends AggregateRoot {
     public void archive(ArchiveDocumentCommand cmd) {
         status.ensureOpPermitted(ARCHIVE);
         applyChange(new DocumentArchivedEvent(id, clock.instant(), version));
+    }
+
+    public void setClock(Clock clock) {
+        this.clock = clock;
     }
 
     private Clock clock;

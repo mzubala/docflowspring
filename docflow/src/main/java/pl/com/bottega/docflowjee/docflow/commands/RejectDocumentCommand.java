@@ -15,4 +15,7 @@ public class RejectDocumentCommand implements Command {
         this.employeeId = employeeId;
         this.reason = reason;
     }
+
+    public RejectDocumentCommand() {
+    }
 }

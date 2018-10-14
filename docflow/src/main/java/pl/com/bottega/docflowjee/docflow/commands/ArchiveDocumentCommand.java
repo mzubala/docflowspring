@@ -13,4 +13,7 @@ public class ArchiveDocumentCommand implements Command {
         this.documentId = documentId;
         this.employeeId = employeeId;
     }
+
+    public ArchiveDocumentCommand() {
+    }
 }

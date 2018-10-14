@@ -1,5 +1,7 @@
 package pl.com.bottega.docflowjee.docflow.events;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import pl.com.bottega.eventsourcing.Event;
 
 import java.time.Instant;
@@ -9,8 +11,11 @@ import java.util.UUID;
 public class DocumentPassedToVerification extends Event {
     private Integer version;
 
-    public DocumentPassedToVerification(UUID id, Instant instant, Integer version) {
-        super(id, instant);
+    @JsonCreator
+    public DocumentPassedToVerification(@JsonProperty("id") UUID id,
+                                        @JsonProperty("createdAt") Instant createdAt,
+                                        @JsonProperty("version") Integer version) {
+        super(id, createdAt);
         this.version = version;
     }
 

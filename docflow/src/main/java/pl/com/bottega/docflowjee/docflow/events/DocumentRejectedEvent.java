@@ -1,5 +1,7 @@
 package pl.com.bottega.docflowjee.docflow.events;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import pl.com.bottega.eventsourcing.Event;
 
 import java.time.Instant;
@@ -10,8 +12,12 @@ public class DocumentRejectedEvent extends Event {
     private String reason;
     private Integer version;
 
-    public DocumentRejectedEvent(UUID id, Instant instant, String reason, Integer version) {
-        super(id, instant);
+    @JsonCreator
+    public DocumentRejectedEvent(@JsonProperty("id") UUID id,
+                                 @JsonProperty("createdAt") Instant createdAt,
+                                 @JsonProperty("reason") String reason,
+                                 @JsonProperty("version") Integer version) {
+        super(id, createdAt);
         this.reason = reason;
         this.version = version;
     }

@@ -11,4 +11,7 @@ public class PassToVerificationCommand {
         this.documentId = documentId;
         this.employeeId = employeeId;
     }
+
+    public PassToVerificationCommand() {
+    }
 }

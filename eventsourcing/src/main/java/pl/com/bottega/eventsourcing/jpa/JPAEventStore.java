@@ -31,6 +31,7 @@ public class JPAEventStore implements EventStore {
         events.stream()
             .map(this::toPersistentEvent)
             .forEach(this::persist);
+        events.forEach(publisher::publish);
     }
 
     private void checkOptimisticLocking(UUID aggregateId, Long expectedVersion) {
@@ -38,6 +39,9 @@ public class JPAEventStore implements EventStore {
             .setParameter("id", aggregateId).getSingleResult();
         if(lastVersion == null && expectedVersion.equals(-1L)) {
             return;
+        }
+        if(lastVersion.equals(0L) && expectedVersion.equals(-1L)) {
+            throw new ConcurrencyException(aggregateId);
         }
         if(!lastVersion.equals(expectedVersion)) {
             throw new ConcurrencyException(aggregateId, lastVersion, expectedVersion);

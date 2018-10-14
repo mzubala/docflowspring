@@ -22,4 +22,7 @@ public class PublishDocumentCommand implements Command {
         this.departmentIds = departmentIds;
         this.includeDepartmentsFromPreviousVersion = includeDepartmentsFromPreviousVersion;
     }
+
+    public PublishDocumentCommand() {
+    }
 }

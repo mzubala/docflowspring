@@ -1,5 +1,7 @@
 package pl.com.bottega.docflowjee.docflow.events;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import pl.com.bottega.eventsourcing.Event;
 
 import java.time.Instant;
@@ -9,8 +11,11 @@ import java.util.UUID;
 public class DocumentCreatedEvent extends Event {
     private final Long employeeId;
 
-    public DocumentCreatedEvent(UUID id, Instant instant, Long employeeId) {
-        super(id, instant);
+    @JsonCreator
+    public DocumentCreatedEvent(@JsonProperty("id") UUID id,
+                                @JsonProperty("createdAt") Instant createdAt,
+                                @JsonProperty("employeeId") Long employeeId) {
+        super(id, createdAt);
         this.employeeId = employeeId;
     }
 

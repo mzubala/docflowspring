@@ -11,4 +11,7 @@ public class CreateNewDocumentVersionCommand {
         this.documentId = documentId;
         this.employeeId = employeeId;
     }
+
+    public CreateNewDocumentVersionCommand() {
+    }
 }

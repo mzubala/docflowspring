@@ -14,6 +14,9 @@ public class VerifyDocumentCommand implements Command {
         this.employeeId = employeeId;
     }
 
+    public VerifyDocumentCommand() {
+    }
+
     public Long getEmployeeId() {
         return employeeId;
     }
