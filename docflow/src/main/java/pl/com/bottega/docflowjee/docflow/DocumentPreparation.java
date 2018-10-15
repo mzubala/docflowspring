@@ -18,6 +18,7 @@ public class DocumentPreparation {
         this.clock = clock;
     }
 
+    @ValidateCommand
     public void create(CreateDocumentCommand cmd) {
         Document document = new Document(cmd, clock);
         documentRepository.save(document, -1L);
