@@ -6,6 +6,7 @@ import pl.com.bottega.docflowjee.docflow.commands.CreateNewDocumentVersionComman
 import pl.com.bottega.docflowjee.docflow.commands.UpdateDocumentCommand;
 
 import javax.inject.Inject;
+import javax.jms.JMSContext;
 import java.time.Clock;
 
 public class DocumentPreparation {
