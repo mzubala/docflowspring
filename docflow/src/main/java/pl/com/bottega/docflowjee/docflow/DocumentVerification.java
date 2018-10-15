@@ -18,18 +18,21 @@ public class DocumentVerification {
         this.clock = clock;
     }
 
+    @ValidateCommand
     public void passToVerification(PassToVerificationCommand cmd) {
         Document document = documentRepository.get(cmd.documentId);
         document.passToVerification(cmd);
         documentRepository.save(document, cmd.aggregateVersion);
     }
 
+    @ValidateCommand
     public void verify(VerifyDocumentCommand cmd) {
         Document document = documentRepository.get(cmd.documentId);
         document.verify(cmd);
         documentRepository.save(document, cmd.aggregateVersion);
     }
 
+    @ValidateCommand
     public void reject(RejectDocumentCommand cmd) {
         Document document = documentRepository.get(cmd.documentId);
         document.reject(cmd);

@@ -16,6 +16,7 @@ public class DocumentPublication {
         this.clock = clock;
     }
 
+    @ValidateCommand
     public void publish(PublishDocumentCommand cmd) {
         Document document = documentRepository.get(cmd.documentId);
         document.publish(cmd);

@@ -24,18 +24,21 @@ public class DocumentPreparation {
         documentRepository.save(document, -1L);
     }
 
+    @ValidateCommand
     public void update(UpdateDocumentCommand cmd) {
         Document document = documentRepository.get(cmd.documentId);
         document.update(cmd);
         documentRepository.save(document, cmd.aggregateVersion);
     }
 
+    @ValidateCommand
     public void createNewVersion(CreateNewDocumentVersionCommand cmd) {
         Document document = documentRepository.get(cmd.documentId);
         document.createNewVersion(cmd);
         documentRepository.save(document, cmd.aggregateVersion);
     }
 
+    @ValidateCommand
     public void archive(ArchiveDocumentCommand cmd) {
         Document document = documentRepository.get(cmd.documentId);
         document.archive(cmd);

@@ -1,15 +1,24 @@
 package pl.com.bottega.docflowjee.docflow.commands;
 
+import pl.com.bottega.docflowjee.docflow.commands.validation.ValidateObscenity;
 import pl.com.bottega.eventsourcing.Command;
 
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 import java.util.UUID;
 
 public class UpdateDocumentCommand implements Command {
-
+    @NotNull
     public UUID documentId;
+    @NotNull
     public Long employeeId;
+    @NotEmpty
+    @ValidateObscenity
     public String title;
+    @NotEmpty
+    @ValidateObscenity
     public String content;
+    @NotNull
     public Long aggregateVersion;
 
     public UpdateDocumentCommand() {
