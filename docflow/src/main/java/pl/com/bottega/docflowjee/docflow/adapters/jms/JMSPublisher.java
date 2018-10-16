@@ -36,18 +36,6 @@ public class JMSPublisher implements EventPublisher {
 
     @Override
     public void publish(Event event) {
-        TextMessage message = jmsContext.createTextMessage();
-        try {
-            message.setStringProperty(EVENT_CLASS, event.getClass().getName());
-            message.setText(eventJson(event));
-        } catch (Exception e) {
-            new RuntimeException("Failed to create message", e);
-        }
-        jmsContext.createProducer().send(topic, message);
-    }
 
-    private String eventJson(Event event) {
-        return Try.of(() -> mapper.writeValueAsString(event))
-            .getOrElseThrow((e) -> new RuntimeException("Failed to serialize event", e));
     }
 }
