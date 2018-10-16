@@ -20,6 +20,8 @@
         <module>hr</module>
         <module>docflow</module>
         <module>eventsourcing</module>
+        <module>catalog</module>
+        <module>docflow-events</module>
     </modules>
 
     <build>
