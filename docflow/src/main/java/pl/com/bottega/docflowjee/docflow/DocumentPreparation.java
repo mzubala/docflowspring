@@ -21,6 +21,9 @@ public class DocumentPreparation {
 
     @ValidateCommand
     public void create(CreateDocumentCommand cmd) {
+        if(documentRepository.getOptionally(cmd.documentId).isPresent()) {
+            return;
+        }
         Document document = new Document(cmd, clock);
         documentRepository.save(document, -1L);
     }

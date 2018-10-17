@@ -21,14 +21,19 @@ public class EventStoreRepository<A extends AggregateRoot> implements Repository
 
     @Override
     public A get(UUID id) {
+        return getOptionally(id).orElseThrow(() -> new AggregateNotFoundException(id));
+    }
+
+    @Override
+    public Optional<A> getOptionally(UUID id) {
         List<Event> events = eventStore.getEventsForAggregate(id);
         if (events.size() == 0) {
-            throw new AggregateNotFoundException(id);
+            return Optional.empty();
         }
         A aggregateRoot = instantiateAggregate();
         aggregateRoot.loadFromHistory(events);
         postLoadCallback.ifPresent(it -> it.accept(aggregateRoot));
-        return aggregateRoot;
+        return Optional.of(aggregateRoot);
     }
 
     private A instantiateAggregate() {
