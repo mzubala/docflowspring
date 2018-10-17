@@ -296,7 +296,6 @@ public class DocumentTest {
         //given
         Document document = documentBuilder.archived().build();
         List<Runnable> actions = List.of(
-            () -> document.archive(new ArchiveDocumentCommand(id, editorId)),
             () -> document.update(new UpdateDocumentCommand(id, editorId, "test", "test")),
             () -> document.publish(new PublishDocumentCommand(id, editorId, departmentIds)),
             () -> document.verify(new VerifyDocumentCommand(id, editorId)),
