@@ -7,10 +7,12 @@ import pl.com.bottega.eventsourcing.testdata.TestAggregateRoot;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Consumer;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -82,7 +84,7 @@ public class EventStoreRepositoryTest {
     }
 
     @Test
-    public void notifiesPostLoadCallbacl() {
+    public void notifiesPostLoadCallback() {
         TestAggregateRoot agg = new TestAggregateRoot(id, clock);
         sut.save(agg, -1L);
         Consumer<TestAggregateRoot> callback = mock(Consumer.class);
@@ -93,6 +95,27 @@ public class EventStoreRepositoryTest {
         ArgumentCaptor<TestAggregateRoot> captor = ArgumentCaptor.forClass(TestAggregateRoot.class);
         verify(callback).accept(captor.capture());
         assertThat(captor.getValue().id).isEqualTo(id);
+    }
+
+    @Test
+    public void getsAggregateOptionallyIfItDoesNotExist() {
+        assertThat(sut.getOptionally(UUID.randomUUID()).isPresent()).isFalse();
+    }
+
+    @Test
+    public void throwsExceptionWhenAggregateNotFound() {
+        assertThatThrownBy(() -> sut.get(UUID.randomUUID())).isInstanceOf(AggregateNotFoundException.class);
+    }
+
+    @Test
+    public void getsAggregateOptionallyIfItExists() {
+        TestAggregateRoot agg = new TestAggregateRoot(id, clock);
+        sut.save(agg, -1L);
+
+        Optional<TestAggregateRoot> fetched = sut.getOptionally(id);
+
+        assertThat(fetched).isNotEmpty();
+        assertThat(fetched.get().getId()).isEqualTo(id);
     }
 
 }
