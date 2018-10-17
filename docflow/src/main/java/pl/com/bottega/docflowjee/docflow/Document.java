@@ -102,6 +102,9 @@ public class Document extends AggregateRoot {
     }
 
     public void archive(ArchiveDocumentCommand cmd) {
+        if(status == ARCHIVED) {
+            return;
+        }
         status.ensureOpPermitted(ARCHIVE);
         applyChange(new DocumentArchivedEvent(id, clock.instant(), version));
     }
