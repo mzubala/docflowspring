@@ -1,4 +1,4 @@
-package pl.com.bottega.eventsourcing.testdata;
+package pl.com.bottega.docflowjee.eventsourcing.mongo;
 
 import pl.com.bottega.eventsourcing.Event;
 
@@ -10,7 +10,9 @@ public class TestValueChangedEvent extends Event {
 
     private final String value;
 
-    public TestValueChangedEvent(UUID aggregateId, Instant createdAt, String value) {
+    public TestValueChangedEvent(UUID aggregateId,
+                                 Instant createdAt,
+                                 String value) {
         super(aggregateId, createdAt);
         this.value = value;
     }
@@ -31,5 +33,12 @@ public class TestValueChangedEvent extends Event {
     @Override
     public int hashCode() {
         return Objects.hash(super.hashCode(), value);
+    }
+
+    @Override
+    public String toString() {
+        return "TestValueChangedEvent{" +
+            "value='" + value + '\'' +
+            "} " + super.toString();
     }
 }

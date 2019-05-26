@@ -1,4 +1,4 @@
-package pl.com.bottega.eventsourcing.testdata;
+package pl.com.bottega.docflowjee.eventsourcing.mongo;
 
 import pl.com.bottega.eventsourcing.Event;
 
@@ -11,4 +11,8 @@ public class TestAggregateCreatedEvent extends Event {
         super(aggregateId, createdAt);
     }
 
+    @Override
+    public String toString() {
+        return "TestAggregateCreatedEvent{} " + super.toString();
+    }
 }
