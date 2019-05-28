@@ -5,14 +5,12 @@ import pl.com.bottega.docflowjee.docflow.commands.CreateDocumentCommand;
 import pl.com.bottega.docflowjee.docflow.commands.CreateNewDocumentVersionCommand;
 import pl.com.bottega.docflowjee.docflow.commands.UpdateDocumentCommand;
 
-import javax.inject.Inject;
 import java.time.Clock;
 
 public class DocumentPreparation {
     private final DocumentRepository documentRepository;
     private Clock clock;
 
-    @Inject
     public DocumentPreparation(DocumentRepository documentRepository, Clock clock) {
         this.documentRepository = documentRepository;
         this.clock = clock;
