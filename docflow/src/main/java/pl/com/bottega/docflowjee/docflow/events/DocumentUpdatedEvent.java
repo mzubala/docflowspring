@@ -15,13 +15,13 @@ public class DocumentUpdatedEvent extends Event {
     private Long employeeId;
 
     @JsonCreator
-    public DocumentUpdatedEvent(@JsonProperty("id") UUID id,
+    public DocumentUpdatedEvent(@JsonProperty("aggregateId") UUID aggregateId,
                                 @JsonProperty("employeeId") Long employeeId,
                                 @JsonProperty("createdAt") Instant createdAt,
                                 @JsonProperty("title") String title,
                                 @JsonProperty("content") String content,
                                 @JsonProperty("version") Integer version) {
-        super(id, createdAt);
+        super(aggregateId, createdAt);
         this.title = title;
         this.content = content;
         this.version = version;
@@ -33,7 +33,7 @@ public class DocumentUpdatedEvent extends Event {
     }
 
     public String getContent() {
-        return title;
+        return content;
     }
 
     public Long getEmployeeId() {
