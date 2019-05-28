@@ -1,7 +1,5 @@
 package pl.com.bottega.eventsourcing.testdata;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import pl.com.bottega.eventsourcing.Event;
 
 import java.time.Instant;
@@ -12,10 +10,7 @@ public class TestValueChangedEvent extends Event {
 
     private final String value;
 
-    @JsonCreator
-    public TestValueChangedEvent(@JsonProperty("aggregateId") UUID aggregateId,
-                                 @JsonProperty("createdAt") Instant createdAt,
-                                 @JsonProperty("value") String value) {
+    public TestValueChangedEvent(UUID aggregateId, Instant createdAt, String value) {
         super(aggregateId, createdAt);
         this.value = value;
     }
