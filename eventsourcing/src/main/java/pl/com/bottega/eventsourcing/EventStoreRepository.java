@@ -1,5 +1,6 @@
 package pl.com.bottega.eventsourcing;
 
+import io.vavr.control.Option;
 import io.vavr.control.Try;
 
 import java.lang.reflect.Constructor;
@@ -12,7 +13,7 @@ public class EventStoreRepository<A extends AggregateRoot> implements Repository
 
     private final EventStore eventStore;
     private final Class<A> klass;
-    private Optional<Consumer<A>> postLoadCallback = Optional.empty();
+    private Option<Consumer<A>> postLoadCallback = Option.none();
 
     public EventStoreRepository(EventStore eventStore, Class<A> klass) {
         this.eventStore = eventStore;
@@ -32,8 +33,7 @@ public class EventStoreRepository<A extends AggregateRoot> implements Repository
         }
         A aggregateRoot = instantiateAggregate();
         aggregateRoot.loadFromHistory(events);
-        postLoadCallback.ifPresent(it -> it.accept(aggregateRoot));
-        return Optional.of(aggregateRoot);
+        postLoadCallback.peek(it -> it.accept(aggregateRoot));        return Optional.of(aggregateRoot);
     }
 
     private A instantiateAggregate() {
@@ -43,8 +43,7 @@ public class EventStoreRepository<A extends AggregateRoot> implements Repository
             A agg = constructor.newInstance();
             constructor.setAccessible(false);
             return agg;
-        })
-            .getOrElseThrow((e) -> new RuntimeException("Failed to instantiate aggregate", e));
+        }).getOrElseThrow((e) -> new RuntimeException("Failed to instantiate aggregate", e));
     }
 
     @Override
@@ -57,6 +56,6 @@ public class EventStoreRepository<A extends AggregateRoot> implements Repository
     }
 
     public void setPostLoadCallback(Consumer<A> postLoadCallback) {
-        this.postLoadCallback = Optional.ofNullable(postLoadCallback);
+        this.postLoadCallback = Option.of(postLoadCallback);
     }
 }

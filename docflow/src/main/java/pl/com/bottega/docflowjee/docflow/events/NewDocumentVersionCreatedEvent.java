@@ -12,10 +12,10 @@ public class NewDocumentVersionCreatedEvent extends Event {
     private Integer version;
 
     @JsonCreator
-    public NewDocumentVersionCreatedEvent(@JsonProperty("id") UUID id,
+    public NewDocumentVersionCreatedEvent(@JsonProperty("aggregateId") UUID aggregateId,
                                           @JsonProperty("createdAt") Instant createdAt,
                                           @JsonProperty("version") Integer version) {
-        super(id, createdAt);
+        super(aggregateId, createdAt);
         this.version = version;
     }
 

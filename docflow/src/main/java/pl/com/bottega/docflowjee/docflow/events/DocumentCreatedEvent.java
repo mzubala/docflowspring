@@ -12,10 +12,10 @@ public class DocumentCreatedEvent extends Event {
     private final Long employeeId;
 
     @JsonCreator
-    public DocumentCreatedEvent(@JsonProperty("id") UUID id,
+    public DocumentCreatedEvent(@JsonProperty("aggregateId") UUID aggregateId,
                                 @JsonProperty("createdAt") Instant createdAt,
                                 @JsonProperty("employeeId") Long employeeId) {
-        super(id, createdAt);
+        super(aggregateId, createdAt);
         this.employeeId = employeeId;
     }
 
