@@ -1,57 +1,32 @@
 package pl.com.bottega.docflowjee.docflow.adapters.rest;
 
+import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import pl.com.bottega.docflowjee.docflow.IllegalDocumentOperationException;
 import pl.com.bottega.eventsourcing.AggregateNotFoundException;
 import pl.com.bottega.eventsourcing.ConcurrencyException;
 
-import javax.ws.rs.core.Response;
-import javax.ws.rs.ext.ExceptionMapper;
-import javax.ws.rs.ext.Provider;
+import static org.springframework.http.HttpStatus.CONFLICT;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
+import static org.springframework.http.HttpStatus.UNPROCESSABLE_ENTITY;
 
+@ControllerAdvice
 public class ExceptionMappers {
 
-    @Provider
-    public static class ConcurrencyExceptionMapper implements ExceptionMapper<ConcurrencyException> {
+    @ExceptionHandler(IllegalDocumentOperationException.class)
+    @ResponseStatus(UNPROCESSABLE_ENTITY)
+    public void handleIllegalDocumentOperation() { }
 
-        @Override
-        public Response toResponse(pl.com.bottega.eventsourcing.ConcurrencyException exception) {
-            return buildResponse(Response.Status.CONFLICT, exception);
-        }
+    @ExceptionHandler(AggregateNotFoundException.class)
+    @ResponseStatus(NOT_FOUND)
+    public void handleAggregateNotFoundException() {
+
     }
 
-    @Provider
-    public static class IllegalDocumentOperationExceptionMapper implements ExceptionMapper<IllegalDocumentOperationException> {
+    @ExceptionHandler(ConcurrencyException.class)
+    @ResponseStatus(CONFLICT)
+    public void handleConcurrencyException() {
 
-        @Override
-        public Response toResponse(IllegalDocumentOperationException exception) {
-            return buildResponse(422, exception);
-        }
     }
-
-    @Provider
-    public static class AggregateNotFoundExceptionMapper implements ExceptionMapper<AggregateNotFoundException> {
-
-
-        @Override
-        public Response toResponse(AggregateNotFoundException exception) {
-            return buildResponse(Response.Status.NOT_FOUND, exception);
-        }
-    }
-
-    private static Response buildResponse(Response.Status status, Exception exception) {
-        return buildResponse(status.getStatusCode(), exception);
-    }
-
-    private static Response buildResponse(int code, Exception exception) {
-        return Response.status(code).entity(new Error(exception)).build();
-    }
-
-    private static class Error {
-        public String error;
-
-        public Error(Exception ex) {
-            this.error = ex.getMessage();
-        }
-    }
-
 }
