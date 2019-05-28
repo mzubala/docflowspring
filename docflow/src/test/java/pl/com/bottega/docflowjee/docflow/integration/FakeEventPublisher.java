@@ -1,5 +1,6 @@
 package pl.com.bottega.docflowjee.docflow.integration;
 
+import pl.com.bottega.docflowjee.docflow.events.NewDocumentVersionCreatedEvent;
 import pl.com.bottega.eventsourcing.Event;
 import pl.com.bottega.eventsourcing.EventPublisher;
 
@@ -20,7 +21,19 @@ public class FakeEventPublisher implements EventPublisher {
     }
 
     public void assertEventsWerePublishedInOrder(Class<? extends Event>... types) {
-        List publishedClasses = publishedEvents.stream().map(Object::getClass).collect(toList());
-        assertThat(publishedClasses).containsExactly(types);
+        assertThat(publishedClasses()).containsExactly(types);
     }
+
+    private List publishedClasses() {
+        return publishedEvents.stream().map(Object::getClass).collect(toList());
+    }
+
+    public void assertEventWasPublished(Class<? extends Event> eventClass) {
+        assertThat(publishedClasses()).contains(eventClass);
+    }
+
+    public void reset() {
+        publishedEvents.clear();
+    }
+
 }
