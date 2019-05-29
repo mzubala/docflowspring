@@ -1,4 +1,4 @@
-package pl.com.bottega.docflowjee.hr.controller.response;
+package pl.com.bottega.docflowjee.hr.service;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
