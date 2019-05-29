@@ -43,15 +43,15 @@ public class Document extends AggregateRoot {
 
     public Document(CreateDocumentCommand cmd, Clock clock) {
         this.clock = clock;
-        applyChange(new DocumentCreatedEvent(cmd.documentId, clock.instant(), cmd.employeeId));
+        applyChange(new DocumentCreatedEvent(cmd.getDocumentId(), clock.instant(), cmd.getEmployeeId()));
     }
 
     public void update(UpdateDocumentCommand cmd) {
         status.ensureOpPermitted(UPDATE);
-        if(StringUtils.equals(title, cmd.title) && StringUtils.equals(content, cmd.content)) {
+        if(StringUtils.equals(title, cmd.getTitle()) && StringUtils.equals(content, cmd.getContent())) {
             return;
         }
-        applyChange(new DocumentUpdatedEvent(id, cmd.employeeId, clock.instant(), cmd.title, cmd.content, version));
+        applyChange(new DocumentUpdatedEvent(id, cmd.getEmployeeId(), clock.instant(), cmd.getTitle(), cmd.getContent(), version));
     }
 
     public void passToVerification(PassToVerificationCommand cmd) {
@@ -84,7 +84,7 @@ public class Document extends AggregateRoot {
             return;
         }
         status.ensureOpPermitted(REJECT);
-        applyChange(new DocumentRejectedEvent(id, clock.instant(), cmd.reason, version));
+        applyChange(new DocumentRejectedEvent(id, clock.instant(), cmd.getReason(), version));
     }
 
     public void publish(PublishDocumentCommand cmd) {
@@ -165,8 +165,8 @@ public class Document extends AggregateRoot {
     }
 
     private Set<Long> newDepartments(PublishDocumentCommand cmd) {
-        Set<Long> newDepartments = new HashSet<>(cmd.departmentIds);
-        if(cmd.includeDepartmentsFromPreviousVersion) {
+        Set<Long> newDepartments = new HashSet<>(cmd.getDepartmentIds());
+        if(cmd.isIncludeDepartmentsFromPreviousVersion()) {
             newDepartments.addAll(previousVersionPublishedFor);
         }
         newDepartments.removeAll(publishedFor);

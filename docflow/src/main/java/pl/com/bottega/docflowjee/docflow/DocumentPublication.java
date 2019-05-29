@@ -2,25 +2,19 @@ package pl.com.bottega.docflowjee.docflow;
 
 import pl.com.bottega.docflowjee.docflow.commands.PublishDocumentCommand;
 
-import javax.inject.Inject;
-import java.time.Clock;
-
 public class DocumentPublication {
 
     private final DocumentRepository documentRepository;
-    private Clock clock;
 
-    @Inject
-    public DocumentPublication(DocumentRepository documentRepository, Clock clock) {
+    public DocumentPublication(DocumentRepository documentRepository) {
         this.documentRepository = documentRepository;
-        this.clock = clock;
     }
 
     @ValidateCommand
     public void publish(PublishDocumentCommand cmd) {
-        Document document = documentRepository.get(cmd.documentId);
+        Document document = documentRepository.get(cmd.getDocumentId());
         document.publish(cmd);
-        documentRepository.save(document, cmd.aggregateVersion);
+        documentRepository.save(document, cmd.getAggregateVersion());
     }
 
 }
