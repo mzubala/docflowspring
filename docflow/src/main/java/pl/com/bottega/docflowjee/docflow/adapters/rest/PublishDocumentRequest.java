@@ -1,9 +1,11 @@
 package pl.com.bottega.docflowjee.docflow.adapters.rest;
 
+import javax.validation.constraints.NotEmpty;
 import java.util.Set;
 
 public class PublishDocumentRequest extends DocumentRequest {
 
+    @NotEmpty
     public Set<Long> departmentIds;
     public boolean includeDepartmentsFromPreviousVersion;
 
