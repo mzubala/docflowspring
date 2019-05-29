@@ -2,16 +2,31 @@ package pl.com.bottega.docflowjee.docflow.commands;
 
 import java.util.UUID;
 
-public class PassToVerificationCommand {
-    public UUID documentId;
-    public Long employeeId;
-    public Long aggregateVersion;
+import static com.google.common.base.Preconditions.checkNotNull;
 
-    public PassToVerificationCommand(UUID documentId, Long employeeId) {
+public class PassToVerificationCommand {
+    private UUID documentId;
+    private Long employeeId;
+    private Long aggregateVersion;
+
+    public PassToVerificationCommand(UUID documentId, Long employeeId, Long aggregateVersion) {
+        checkNotNull(documentId);
+        checkNotNull(employeeId);
+        checkNotNull(aggregateVersion);
         this.documentId = documentId;
         this.employeeId = employeeId;
+        this.aggregateVersion = aggregateVersion;
     }
 
-    public PassToVerificationCommand() {
+    public UUID getDocumentId() {
+        return documentId;
+    }
+
+    public Long getEmployeeId() {
+        return employeeId;
+    }
+
+    public Long getAggregateVersion() {
+        return aggregateVersion;
     }
 }

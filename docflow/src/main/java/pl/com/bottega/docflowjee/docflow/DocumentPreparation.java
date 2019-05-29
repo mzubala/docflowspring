@@ -17,7 +17,7 @@ public class DocumentPreparation {
     }
 
     public void create(CreateDocumentCommand cmd) {
-        if(documentRepository.getOptionally(cmd.documentId).isPresent()) {
+        if(documentRepository.getOptionally(cmd.getDocumentId()).isPresent()) {
             return;
         }
         Document document = new Document(cmd, clock);
@@ -25,20 +25,20 @@ public class DocumentPreparation {
     }
 
     public void update(UpdateDocumentCommand cmd) {
-        Document document = documentRepository.get(cmd.documentId);
+        Document document = documentRepository.get(cmd.getDocumentId());
         document.update(cmd);
-        documentRepository.save(document, cmd.aggregateVersion);
+        documentRepository.save(document, cmd.getAggregateVersion());
     }
 
     public void createNewVersion(CreateNewDocumentVersionCommand cmd) {
-        Document document = documentRepository.get(cmd.documentId);
+        Document document = documentRepository.get(cmd.getDocumentId());
         document.createNewVersion(cmd);
-        documentRepository.save(document, cmd.aggregateVersion);
+        documentRepository.save(document, cmd.getAggregateVersion());
     }
 
     public void archive(ArchiveDocumentCommand cmd) {
-        Document document = documentRepository.get(cmd.documentId);
+        Document document = documentRepository.get(cmd.getDocumentId());
         document.archive(cmd);
-        documentRepository.save(document, cmd.aggregateVersion);
+        documentRepository.save(document, cmd.getAggregateVersion());
     }
 }

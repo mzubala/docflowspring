@@ -6,6 +6,8 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseCookie;
+import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit4.SpringRunner;
 import pl.com.bottega.docflowjee.docflow.adapters.rest.CreateDocumentRequest;
 import pl.com.bottega.docflowjee.docflow.adapters.rest.DocumentRequest;
@@ -21,6 +23,7 @@ import pl.com.bottega.docflowjee.docflow.events.NewDocumentVersionCreatedEvent;
 
 import java.util.Set;
 import java.util.UUID;
+import java.util.function.Supplier;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
@@ -134,6 +137,23 @@ public class DocflowTest {
 
         // then
         assertThat(resp.getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
+    }
+
+    @Test
+    public void shouldRespondWithHttp422WhenPassingInvalidRequests() {
+        assertHttp422(() -> client.create(docId, new CreateDocumentRequest()));
+        assertHttp422(() -> client.update(docId, new UpdateDocumentRequest()));
+        assertHttp422(() -> client.update(docId, new UpdateDocumentRequest()));
+        assertHttp422(() -> client.passToVerification(docId, new DocumentRequest()));
+        assertHttp422(() -> client.verify(docId, new DocumentRequest()));
+        assertHttp422(() -> client.publish(docId, new PublishDocumentRequest()));
+        assertHttp422(() -> client.archive(docId, new DocumentRequest()));
+        assertHttp422(() -> client.createNewVersion(docId, new DocumentRequest()));
+    }
+
+
+    private void assertHttp422(Supplier<ResponseEntity> sup) {
+        assertThat(sup.get().getStatusCode()).isEqualTo(HttpStatus.UNPROCESSABLE_ENTITY);
     }
 
 }

@@ -11,9 +11,9 @@ public class DocumentPublication {
     }
 
     public void publish(PublishDocumentCommand cmd) {
-        Document document = documentRepository.get(cmd.documentId);
+        Document document = documentRepository.get(cmd.getDocumentId());
         document.publish(cmd);
-        documentRepository.save(document, cmd.aggregateVersion);
+        documentRepository.save(document, cmd.getAggregateVersion());
     }
 
 }

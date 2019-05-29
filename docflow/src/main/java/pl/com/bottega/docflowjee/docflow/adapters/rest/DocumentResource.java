@@ -42,50 +42,43 @@ public class DocumentResource {
 
     @PutMapping
     public void update(@PathVariable UUID id,  @RequestBody UpdateDocumentRequest request) {
-        var cmd = new UpdateDocumentCommand(id, request.employeeId, request.title, request.content);
-        cmd.aggregateVersion = request.aggregateVersion;
+        var cmd = new UpdateDocumentCommand(id, request.employeeId, request.title, request.content, request.aggregateVersion);
         documentPreparation.update(cmd);
     }
 
     @PostMapping("/verification")
     public void sendToVerification(@PathVariable UUID id,  @RequestBody DocumentRequest request) {
-        var cmd = new PassToVerificationCommand(id, request.employeeId);
-        cmd.aggregateVersion = request.aggregateVersion;
+        var cmd = new PassToVerificationCommand(id, request.employeeId, request.aggregateVersion);
         documentVerification.passToVerification(cmd);
     }
 
     @PostMapping("/verification/positive")
     public void verify(@PathVariable UUID id,  @RequestBody DocumentRequest request) {
-        var cmd = new VerifyDocumentCommand(id, request.employeeId);
-        cmd.aggregateVersion = request.aggregateVersion;
+        var cmd = new VerifyDocumentCommand(id, request.employeeId, request.aggregateVersion);
         documentVerification.verify(cmd);
     }
 
     @PostMapping("/verification/negative")
     public void reject(@PathVariable UUID id,  @RequestBody RejectDocumentRequest request) {
-        var cmd = new RejectDocumentCommand(id, request.employeeId, request.reason);
-        cmd.aggregateVersion = request.aggregateVersion;
+        var cmd = new RejectDocumentCommand(id, request.employeeId, request.reason, request.aggregateVersion);
         documentVerification.reject(cmd);
     }
 
     @PostMapping("/publication")
     public void publish(@PathVariable UUID id,  @RequestBody PublishDocumentRequest request) {
-        var cmd = new PublishDocumentCommand(id, request.employeeId, request.departmentIds, true);
-        cmd.aggregateVersion = request.aggregateVersion;
+        var cmd = new PublishDocumentCommand(id, request.employeeId, request.departmentIds, true, request.aggregateVersion);
         publication.publish(cmd);
     }
 
     @PostMapping("/new-version")
     public void createNewVersion(@PathVariable UUID id,  @RequestBody DocumentRequest request) {
-        var cmd = new CreateNewDocumentVersionCommand(id, request.employeeId);
-        cmd.aggregateVersion = request.aggregateVersion;
+        var cmd = new CreateNewDocumentVersionCommand(id, request.employeeId, request.aggregateVersion);
         documentPreparation.createNewVersion(cmd);
     }
 
     @PostMapping("/archivisation")
     public void archive(@PathVariable UUID id,  @RequestBody DocumentRequest request) {
-        var cmd = new ArchiveDocumentCommand(id, request.employeeId);
-        cmd.aggregateVersion = request.aggregateVersion;
+        var cmd = new ArchiveDocumentCommand(id, request.employeeId, request.aggregateVersion);
         documentPreparation.archive(cmd);
     }
 }
