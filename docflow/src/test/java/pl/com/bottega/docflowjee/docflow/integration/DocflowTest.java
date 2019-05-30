@@ -10,6 +10,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import pl.com.bottega.docflowjee.docflow.EmployeePosition;
 import pl.com.bottega.docflowjee.docflow.adapters.client.EmployeeDetails;
@@ -42,6 +43,7 @@ import static pl.com.bottega.docflowjee.docflow.EmployeePosition.SENIOR_QMA;
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 @RunWith(SpringRunner.class)
 @AutoConfigureWireMock(port = 9090)
+@ActiveProfiles("integration")
 public class DocflowTest {
 
     @Autowired
@@ -189,7 +191,7 @@ public class DocflowTest {
         EmployeeDetails employeeDetails = new EmployeeDetails();
         employeeDetails.position = position;
         try {
-           stubFor(get(urlEqualTo("/employees/" + employeeId))
+            stubFor(get(urlEqualTo("/employees/" + employeeId))
                 .willReturn(aResponse().withBody(objectMapper.writeValueAsString(employeeDetails))
                     .withHeader("Content-type", "application/json")));
         } catch (JsonProcessingException e) {

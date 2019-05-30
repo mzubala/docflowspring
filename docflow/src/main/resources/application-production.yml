@@ -1,0 +1,3 @@
+service:
+  hr:
+    url: http://10.0.20.1:8430
