@@ -25,6 +25,8 @@ public class DocumentBuilder {
     private boolean verified;
     private Set<Long> departmentIds;
     private boolean archived;
+    private Long aggregateVersion = 1L;
+    private EmployeePermissionsPolicy employeePermissionsPolicy;
 
     public DocumentBuilder id(UUID id) {
         this.id = id;
@@ -52,21 +54,21 @@ public class DocumentBuilder {
     }
 
     public Document build() {
-        Document document = new Document(new CreateDocumentCommand(id, editorId), clock);
+        Document document = new Document(new CreateDocumentCommand(id, editorId), clock, employeePermissionsPolicy);
         if(title != null || content != null) {
-            document.update(new UpdateDocumentCommand(id, editorId, title, content));
+            document.update(new UpdateDocumentCommand(id, editorId, title, content, aggregateVersion));
         }
         if(passedToVerification) {
-            document.passToVerification(new PassToVerificationCommand(id, editorId));
+            document.passToVerification(new PassToVerificationCommand(id, editorId, aggregateVersion));
         }
         if(verified) {
-            document.verify(new VerifyDocumentCommand(id, verifierId));
+            document.verify(new VerifyDocumentCommand(id, verifierId, aggregateVersion));
         }
         if(departmentIds != null) {
-            document.publish(new PublishDocumentCommand(id, publisherId, departmentIds));
+            document.publish(new PublishDocumentCommand(id, publisherId, departmentIds, aggregateVersion));
         }
         if(archived) {
-            document.archive(new ArchiveDocumentCommand(id, editorId));
+            document.archive(new ArchiveDocumentCommand(id, editorId, aggregateVersion));
         }
         document.markChangesCommited();
         return document;
@@ -111,6 +113,11 @@ public class DocumentBuilder {
 
     public DocumentBuilder archived() {
         archived = true;
+        return this;
+    }
+
+    public DocumentBuilder employeePermissionsPolicy(EmployeePermissionsPolicy employeePermissionsPolicy) {
+        this.employeePermissionsPolicy = employeePermissionsPolicy;
         return this;
     }
 }

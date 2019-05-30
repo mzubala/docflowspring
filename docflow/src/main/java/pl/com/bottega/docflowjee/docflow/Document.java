@@ -25,6 +25,7 @@ import java.util.Set;
 
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 import static pl.com.bottega.docflowjee.docflow.DocumentOperation.ARCHIVE;
+import static pl.com.bottega.docflowjee.docflow.DocumentOperation.CREATE;
 import static pl.com.bottega.docflowjee.docflow.DocumentOperation.CREATE_NEW_VERSION;
 import static pl.com.bottega.docflowjee.docflow.DocumentOperation.PASS_TO_VERIFICATION;
 import static pl.com.bottega.docflowjee.docflow.DocumentOperation.PUBLISH;
@@ -41,17 +42,20 @@ public class Document extends AggregateRoot {
 
     Document() {}
 
-    public Document(CreateDocumentCommand cmd, Clock clock) {
+    public Document(CreateDocumentCommand cmd, Clock clock, EmployeePermissionsPolicy employeePermissionsPolicy) {
         this.clock = clock;
-        applyChange(new DocumentCreatedEvent(cmd.documentId, clock.instant(), cmd.employeeId));
+        this.employeePermissionsPolicy = employeePermissionsPolicy;
+        employeePermissionsPolicy.checkPermission(cmd.getEmployeeId(), CREATE);
+        applyChange(new DocumentCreatedEvent(cmd.getDocumentId(), clock.instant(), cmd.getEmployeeId()));
     }
 
     public void update(UpdateDocumentCommand cmd) {
         status.ensureOpPermitted(UPDATE);
-        if(StringUtils.equals(title, cmd.title) && StringUtils.equals(content, cmd.content)) {
+        employeePermissionsPolicy.checkPermission(cmd.getEmployeeId(), UPDATE);
+        if(StringUtils.equals(title, cmd.getTitle()) && StringUtils.equals(content, cmd.getContent())) {
             return;
         }
-        applyChange(new DocumentUpdatedEvent(id, cmd.employeeId, clock.instant(), cmd.title, cmd.content, version));
+        applyChange(new DocumentUpdatedEvent(id, cmd.getEmployeeId(), clock.instant(), cmd.getTitle(), cmd.getContent(), version));
     }
 
     public void passToVerification(PassToVerificationCommand cmd) {
@@ -59,6 +63,7 @@ public class Document extends AggregateRoot {
             return;
         }
         status.ensureOpPermitted(PASS_TO_VERIFICATION);
+        employeePermissionsPolicy.checkPermission(cmd.getEmployeeId(), PASS_TO_VERIFICATION);
         if(isEmpty(title)) {
             throw new IllegalDocumentOperationException("title cannot be empty when passing to verification");
         }
@@ -73,6 +78,7 @@ public class Document extends AggregateRoot {
             return;
         }
         status.ensureOpPermitted(VERIFY);
+        employeePermissionsPolicy.checkPermission(cmd.getEmployeeId(), VERIFY);
         if(this.editors.contains(cmd.getEmployeeId())) {
             throw new IllegalDocumentOperationException("Editors cannot verify document");
         }
@@ -83,12 +89,14 @@ public class Document extends AggregateRoot {
         if(status == DRAFT) {
             return;
         }
+        employeePermissionsPolicy.checkPermission(cmd.getEmployeeId(), REJECT);
         status.ensureOpPermitted(REJECT);
-        applyChange(new DocumentRejectedEvent(id, clock.instant(), cmd.reason, version));
+        applyChange(new DocumentRejectedEvent(id, clock.instant(), cmd.getReason(), version));
     }
 
     public void publish(PublishDocumentCommand cmd) {
         status.ensureOpPermitted(PUBLISH);
+        employeePermissionsPolicy.checkPermission(cmd.getEmployeeId(), PUBLISH);
         Set<Long> newDepartments = newDepartments(cmd);
         if(newDepartments.isEmpty()) {
             return;
@@ -98,10 +106,12 @@ public class Document extends AggregateRoot {
 
     public void createNewVersion(CreateNewDocumentVersionCommand cmd) {
         status.ensureOpPermitted(CREATE_NEW_VERSION);
+        employeePermissionsPolicy.checkPermission(cmd.getEmployeeId(), CREATE_NEW_VERSION);
         applyChange(new NewDocumentVersionCreatedEvent(id, clock.instant(), version + 1));
     }
 
     public void archive(ArchiveDocumentCommand cmd) {
+        employeePermissionsPolicy.checkPermission(cmd.getEmployeeId(), ARCHIVE);
         if(status == ARCHIVED) {
             return;
         }
@@ -113,7 +123,12 @@ public class Document extends AggregateRoot {
         this.clock = clock;
     }
 
+    public void setEmployeePermissionsPolicy(EmployeePermissionsPolicy employeePermissionsPolicy) {
+        this.employeePermissionsPolicy = employeePermissionsPolicy;
+    }
+
     private Clock clock;
+    private EmployeePermissionsPolicy employeePermissionsPolicy;
     private DocumentStatus status;
     private Integer version;
     private Set<Long> previousVersionPublishedFor = new HashSet<>();
@@ -165,12 +180,11 @@ public class Document extends AggregateRoot {
     }
 
     private Set<Long> newDepartments(PublishDocumentCommand cmd) {
-        Set<Long> newDepartments = new HashSet<>(cmd.departmentIds);
-        if(cmd.includeDepartmentsFromPreviousVersion) {
+        Set<Long> newDepartments = new HashSet<>(cmd.getDepartmentIds());
+        if(cmd.isIncludeDepartmentsFromPreviousVersion()) {
             newDepartments.addAll(previousVersionPublishedFor);
         }
         newDepartments.removeAll(publishedFor);
         return newDepartments;
     }
-
 }

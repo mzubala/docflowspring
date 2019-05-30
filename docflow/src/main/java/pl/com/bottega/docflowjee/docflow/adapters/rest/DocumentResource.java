@@ -1,5 +1,12 @@
 package pl.com.bottega.docflowjee.docflow.adapters.rest;
 
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import pl.com.bottega.docflowjee.docflow.DocumentPreparation;
 import pl.com.bottega.docflowjee.docflow.DocumentPublication;
 import pl.com.bottega.docflowjee.docflow.DocumentVerification;
@@ -12,78 +19,67 @@ import pl.com.bottega.docflowjee.docflow.commands.RejectDocumentCommand;
 import pl.com.bottega.docflowjee.docflow.commands.UpdateDocumentCommand;
 import pl.com.bottega.docflowjee.docflow.commands.VerifyDocumentCommand;
 
-import javax.inject.Inject;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
+import java.util.UUID;
 
-@Path("/documents")
-@Consumes(MediaType.APPLICATION_JSON)
-@Produces(MediaType.APPLICATION_JSON)
+@RestController
+@RequestMapping("/documents/{id}")
 public class DocumentResource {
 
-    @Inject
-    private DocumentPreparation documentPreparation;
-    @Inject
-    private DocumentVerification documentVerification;
-    @Inject
-    private  DocumentPublication documentPublication;
+    private final DocumentPreparation documentPreparation;
+    private final DocumentVerification documentVerification;
+    private final DocumentPublication publication;
 
-    @PUT
-    public Response create(CreateDocumentCommand command) {
-        documentPreparation.create(command);
-        return Response.ok().build();
+    public DocumentResource(DocumentPreparation documentPreparation, DocumentVerification documentVerification, DocumentPublication publication) {
+        this.documentPreparation = documentPreparation;
+        this.documentVerification = documentVerification;
+        this.publication = publication;
     }
 
-    @PUT
-    @Path("/update")
-    public Response update(UpdateDocumentCommand command) {
-        documentPreparation.update(command);
-        return Response.ok().build();
+    @PostMapping
+    public void create(@PathVariable UUID id,  @RequestBody @Validated CreateDocumentRequest request) {
+        var cmd = new CreateDocumentCommand(id, request.empId);
+        documentPreparation.create(cmd);
     }
 
-    @PUT
-    @Path("/verification/pass")
-    public Response passToVerification(PassToVerificationCommand command) {
-        documentVerification.passToVerification(command);
-        return Response.ok().build();
+    @PutMapping
+    public void update(@PathVariable UUID id,  @RequestBody @Validated UpdateDocumentRequest request) {
+        var cmd = new UpdateDocumentCommand(id, request.employeeId, request.title, request.content, request.aggregateVersion);
+        documentPreparation.update(cmd);
     }
 
-    @PUT
-    @Path("/verification/positive")
-    public Response verify(VerifyDocumentCommand command) {
-        documentVerification.verify(command);
-        return Response.ok().build();
+    @PostMapping("/verification")
+    public void sendToVerification(@PathVariable UUID id,  @RequestBody @Validated DocumentRequest request) {
+        var cmd = new PassToVerificationCommand(id, request.employeeId, request.aggregateVersion);
+        documentVerification.passToVerification(cmd);
     }
 
-    @PUT
-    @Path("/verification/rejection")
-    public Response reject(RejectDocumentCommand command) {
-        documentVerification.reject(command);
-        return Response.ok().build();
+    @PostMapping("/verification/positive")
+    public void verify(@PathVariable UUID id,  @RequestBody @Validated DocumentRequest request) {
+        var cmd = new VerifyDocumentCommand(id, request.employeeId, request.aggregateVersion);
+        documentVerification.verify(cmd);
     }
 
-    @PUT
-    @Path("/publication")
-    public Response publish(PublishDocumentCommand command) {
-        documentPublication.publish(command);
-        return Response.ok().build();
+    @PostMapping("/verification/negative")
+    public void reject(@PathVariable UUID id,  @RequestBody @Validated RejectDocumentRequest request) {
+        var cmd = new RejectDocumentCommand(id, request.employeeId, request.reason, request.aggregateVersion);
+        documentVerification.reject(cmd);
     }
 
-    @PUT
-    @Path("/newVersion")
-    public Response newVersion(CreateNewDocumentVersionCommand command) {
-        documentPreparation.createNewVersion(command);
-        return Response.ok().build();
+    @PostMapping("/publication")
+    public void publish(@PathVariable UUID id,  @RequestBody @Validated PublishDocumentRequest request) {
+        var cmd = new PublishDocumentCommand(id, request.employeeId, request.departmentIds, true, request.aggregateVersion);
+        publication.publish(cmd);
     }
 
-    @PUT
-    @Path("/archive")
-    public Response archive(ArchiveDocumentCommand command) {
-        documentPreparation.archive(command);
-        return Response.ok().build();
+    @PostMapping("/new-version")
+    public void createNewVersion(@PathVariable UUID id,  @RequestBody @Validated DocumentRequest request) {
+        var cmd = new CreateNewDocumentVersionCommand(id, request.employeeId, request.aggregateVersion);
+        documentPreparation.createNewVersion(cmd);
+    }
+
+    @PostMapping("/archivisation")
+    public void archive(@PathVariable UUID id,  @RequestBody @Validated DocumentRequest request) {
+        var cmd = new ArchiveDocumentCommand(id, request.employeeId, request.aggregateVersion);
+        documentPreparation.archive(cmd);
     }
 }

@@ -10,6 +10,9 @@ import static pl.com.bottega.docflowjee.docflow.DocumentOperation.PUBLISH;
 import static pl.com.bottega.docflowjee.docflow.DocumentOperation.REJECT;
 import static pl.com.bottega.docflowjee.docflow.DocumentOperation.UPDATE;
 import static pl.com.bottega.docflowjee.docflow.DocumentOperation.VERIFY;
+import static pl.com.bottega.docflowjee.docflow.EmployeePosition.LEAD_QMA;
+import static pl.com.bottega.docflowjee.docflow.EmployeePosition.QMA;
+import static pl.com.bottega.docflowjee.docflow.EmployeePosition.SENIOR_QMA;
 
 enum DocumentStatus {
 
@@ -26,12 +29,32 @@ enum DocumentStatus {
     }
 
     void ensureOpPermitted(DocumentOperation op) {
-        if(!allowedOperations.contains(op)) {
+        if (!allowedOperations.contains(op)) {
             throw new IllegalDocumentOperationException(String.format("Cannot %s in %s state", op.name(), name()));
         }
     }
 }
 
 enum DocumentOperation {
-    UPDATE, PASS_TO_VERIFICATION, REJECT, VERIFY, PUBLISH, ARCHIVE, CREATE_NEW_VERSION
+
+    CREATE(QMA, LEAD_QMA, SENIOR_QMA),
+    UPDATE(QMA, LEAD_QMA, SENIOR_QMA),
+    PASS_TO_VERIFICATION(QMA, LEAD_QMA, SENIOR_QMA),
+    REJECT(LEAD_QMA, SENIOR_QMA),
+    VERIFY(LEAD_QMA, SENIOR_QMA),
+    PUBLISH(LEAD_QMA),
+    ARCHIVE(LEAD_QMA),
+    CREATE_NEW_VERSION(LEAD_QMA);
+
+    private Set<EmployeePosition> allowedPositions;
+
+    DocumentOperation(EmployeePosition... allowedPositions) {
+        this.allowedPositions = HashSet.of(allowedPositions);
+    }
+
+    void ensureOpAllowedFor(EmployeePosition position) {
+        if (!allowedPositions.contains(position)) {
+            throw new IllegalDocumentOperationException(String.format("Cannot %s in %s position", name(), position.name()));
+        }
+    }
 }

@@ -4,48 +4,42 @@ import pl.com.bottega.docflowjee.docflow.commands.ArchiveDocumentCommand;
 import pl.com.bottega.docflowjee.docflow.commands.CreateDocumentCommand;
 import pl.com.bottega.docflowjee.docflow.commands.CreateNewDocumentVersionCommand;
 import pl.com.bottega.docflowjee.docflow.commands.UpdateDocumentCommand;
-
-import javax.inject.Inject;
-import javax.jms.JMSContext;
 import java.time.Clock;
 
 public class DocumentPreparation {
     private final DocumentRepository documentRepository;
-    private Clock clock;
+    private final EmployeePermissionsPolicy employeePermissionsPolicy;
+    private final Clock clock;
 
-    @Inject
-    public DocumentPreparation(DocumentRepository documentRepository, Clock clock) {
+    public DocumentPreparation(DocumentRepository documentRepository, EmployeePermissionsPolicy employeePermissionsPolicy, Clock clock) {
         this.documentRepository = documentRepository;
+        this.employeePermissionsPolicy = employeePermissionsPolicy;
         this.clock = clock;
     }
 
-    @ValidateCommand
     public void create(CreateDocumentCommand cmd) {
-        if(documentRepository.getOptionally(cmd.documentId).isPresent()) {
+        if(documentRepository.getOptionally(cmd.getDocumentId()).isPresent()) {
             return;
         }
-        Document document = new Document(cmd, clock);
+        Document document = new Document(cmd, clock, employeePermissionsPolicy);
         documentRepository.save(document, -1L);
     }
 
-    @ValidateCommand
     public void update(UpdateDocumentCommand cmd) {
-        Document document = documentRepository.get(cmd.documentId);
+        Document document = documentRepository.get(cmd.getDocumentId());
         document.update(cmd);
-        documentRepository.save(document, cmd.aggregateVersion);
+        documentRepository.save(document, cmd.getAggregateVersion());
     }
 
-    @ValidateCommand
     public void createNewVersion(CreateNewDocumentVersionCommand cmd) {
-        Document document = documentRepository.get(cmd.documentId);
+        Document document = documentRepository.get(cmd.getDocumentId());
         document.createNewVersion(cmd);
-        documentRepository.save(document, cmd.aggregateVersion);
+        documentRepository.save(document, cmd.getAggregateVersion());
     }
 
-    @ValidateCommand
     public void archive(ArchiveDocumentCommand cmd) {
-        Document document = documentRepository.get(cmd.documentId);
+        Document document = documentRepository.get(cmd.getDocumentId());
         document.archive(cmd);
-        documentRepository.save(document, cmd.aggregateVersion);
+        documentRepository.save(document, cmd.getAggregateVersion());
     }
 }

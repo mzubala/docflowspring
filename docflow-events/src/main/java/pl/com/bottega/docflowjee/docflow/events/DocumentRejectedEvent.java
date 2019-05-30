@@ -13,11 +13,11 @@ public class DocumentRejectedEvent extends Event {
     private Integer version;
 
     @JsonCreator
-    public DocumentRejectedEvent(@JsonProperty("id") UUID id,
+    public DocumentRejectedEvent(@JsonProperty("aggregateId") UUID aggregateId,
                                  @JsonProperty("createdAt") Instant createdAt,
                                  @JsonProperty("reason") String reason,
                                  @JsonProperty("version") Integer version) {
-        super(id, createdAt);
+        super(aggregateId, createdAt);
         this.reason = reason;
         this.version = version;
     }

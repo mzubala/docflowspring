@@ -1,0 +1,2 @@
+spring.jms.isPubSubDomain: true
+feign.hystrix.enabled: true

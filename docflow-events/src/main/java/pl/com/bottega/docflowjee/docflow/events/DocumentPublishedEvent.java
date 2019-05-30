@@ -14,11 +14,11 @@ public class DocumentPublishedEvent extends Event {
     private Integer version;
 
     @JsonCreator
-    public DocumentPublishedEvent(@JsonProperty("id") UUID id,
+    public DocumentPublishedEvent(@JsonProperty("aggregateId") UUID aggregateId,
                                   @JsonProperty("createdAt") Instant createdAt,
                                   @JsonProperty("departmentIds") Set<Long> departmentIds,
                                   @JsonProperty("version") Integer version) {
-        super(id, createdAt);
+        super(aggregateId, createdAt);
         this.departmentIds = departmentIds;
         this.version = version;
     }
