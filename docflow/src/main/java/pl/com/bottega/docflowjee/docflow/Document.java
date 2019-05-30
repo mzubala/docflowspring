@@ -123,6 +123,10 @@ public class Document extends AggregateRoot {
         this.clock = clock;
     }
 
+    public void setEmployeePermissionsPolicy(EmployeePermissionsPolicy employeePermissionsPolicy) {
+        this.employeePermissionsPolicy = employeePermissionsPolicy;
+    }
+
     private Clock clock;
     private EmployeePermissionsPolicy employeePermissionsPolicy;
     private DocumentStatus status;
@@ -183,5 +187,4 @@ public class Document extends AggregateRoot {
         newDepartments.removeAll(publishedFor);
         return newDepartments;
     }
-
 }

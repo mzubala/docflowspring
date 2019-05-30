@@ -2,6 +2,7 @@ package pl.com.bottega.docflowjee.docflow.adapters.repository;
 
 import pl.com.bottega.docflowjee.docflow.Document;
 import pl.com.bottega.docflowjee.docflow.DocumentRepository;
+import pl.com.bottega.docflowjee.docflow.EmployeePermissionsPolicy;
 import pl.com.bottega.eventsourcing.EventStoreRepository;
 
 import java.time.Clock;
@@ -12,10 +13,12 @@ public class EventStoreDocumentRepository implements DocumentRepository {
 
     private final EventStoreRepository<Document> repository;
     private Clock clock;
+    private EmployeePermissionsPolicy employeePermissionsPolicy;
 
-    public EventStoreDocumentRepository(EventStoreRepository<Document> repository, Clock clock) {
+    public EventStoreDocumentRepository(EventStoreRepository<Document> repository, Clock clock, EmployeePermissionsPolicy employeePermissionsPolicy) {
         this.repository = repository;
         this.clock = clock;
+        this.employeePermissionsPolicy = employeePermissionsPolicy;
     }
 
     @Override
@@ -27,6 +30,7 @@ public class EventStoreDocumentRepository implements DocumentRepository {
 
     private void injectDependencies(Document document) {
         document.setClock(clock);
+        document.setEmployeePermissionsPolicy(employeePermissionsPolicy);
     }
 
     @Override

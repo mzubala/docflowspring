@@ -36,8 +36,8 @@ public class DocflowConfig {
     }
 
     @Bean
-    public DocumentRepository documentRepository(EventStoreRepository<Document> eventStoreRepository, Clock clock) {
-        return new EventStoreDocumentRepository(eventStoreRepository, clock);
+    public DocumentRepository documentRepository(EventStoreRepository<Document> eventStoreRepository, Clock clock, EmployeePermissionsPolicy employeePermissionsPolicy) {
+        return new EventStoreDocumentRepository(eventStoreRepository, clock, employeePermissionsPolicy);
     }
 
     @Bean
