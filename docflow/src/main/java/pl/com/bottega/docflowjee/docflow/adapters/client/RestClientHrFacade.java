@@ -12,6 +12,7 @@ public class RestClientHrFacade implements HrFacade {
 
     @Override
     public EmployeePosition getEmployeePosition(Long employeeId) {
-        return null;
+        var details = hrClient.getEmployeeDetails(employeeId);
+        return details.position;
     }
 }
