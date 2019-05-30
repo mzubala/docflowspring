@@ -36,6 +36,8 @@ import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
+import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
+import static org.springframework.http.HttpStatus.UNPROCESSABLE_ENTITY;
 import static pl.com.bottega.docflowjee.docflow.EmployeePosition.LEAD_QMA;
 import static pl.com.bottega.docflowjee.docflow.EmployeePosition.QMA;
 import static pl.com.bottega.docflowjee.docflow.EmployeePosition.SENIOR_QMA;
@@ -145,7 +147,7 @@ public class DocflowTest {
         var resp = client.publish(docId, new PublishDocumentRequest(publisherId, ver++, deps, false));
 
         //then
-        assertThat(resp.getStatusCode()).isEqualTo(HttpStatus.UNPROCESSABLE_ENTITY);
+        assertThat(resp.getStatusCode()).isEqualTo(UNPROCESSABLE_ENTITY);
     }
 
     @Test
@@ -182,6 +184,17 @@ public class DocflowTest {
         assertHttp400(() -> client.createNewVersion(docId, new DocumentRequest()));
     }
 
+    @Test
+    public void shouldRespondWithHttp422WhenHrServiceIsNotAccessible() {
+        // given
+        gettingEmployeeDetailsFails(empId, INTERNAL_SERVER_ERROR);
+
+        // when
+        var resp = client.create(docId, new CreateDocumentRequest(empId));
+
+        // then
+        assertThat(resp.getStatusCode()).isEqualTo(UNPROCESSABLE_ENTITY);
+    }
 
     private void assertHttp400(Supplier<ResponseEntity> sup) {
         assertThat(sup.get().getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
@@ -197,5 +210,9 @@ public class DocflowTest {
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private void gettingEmployeeDetailsFails(Long employeeId, HttpStatus status) {
+        stubFor(get(urlEqualTo("/employees/" + employeeId)).willReturn(aResponse().withStatus(status.value())));
     }
 }
