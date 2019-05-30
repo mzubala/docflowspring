@@ -10,7 +10,7 @@ import java.time.Clock;
 public class DocumentPreparation {
     private final DocumentRepository documentRepository;
     private final EmployeePermissionsPolicy employeePermissionsPolicy;
-    private Clock clock;
+    private final Clock clock;
 
     public DocumentPreparation(DocumentRepository documentRepository, EmployeePermissionsPolicy employeePermissionsPolicy, Clock clock) {
         this.documentRepository = documentRepository;
