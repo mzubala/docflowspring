@@ -9,6 +9,9 @@ import pl.com.bottega.docflowjee.docflow.DocumentRepository;
 import pl.com.bottega.docflowjee.docflow.DocumentVerification;
 import pl.com.bottega.docflowjee.docflow.EmployeePermissionsPolicy;
 import pl.com.bottega.docflowjee.docflow.HrEmployeePermissionsPolicy;
+import pl.com.bottega.docflowjee.docflow.HrFacade;
+import pl.com.bottega.docflowjee.docflow.adapters.client.HrClient;
+import pl.com.bottega.docflowjee.docflow.adapters.client.RestClientHrFacade;
 import pl.com.bottega.docflowjee.docflow.adapters.repository.EventStoreDocumentRepository;
 import pl.com.bottega.eventsourcing.EventPublisher;
 import pl.com.bottega.eventsourcing.EventStore;
@@ -41,8 +44,13 @@ public class DocflowConfig {
     }
 
     @Bean
-    public EmployeePermissionsPolicy employeePermissionsPolicy() {
-        return new HrEmployeePermissionsPolicy();
+    public HrFacade hrFacade(HrClient hrClient) {
+        return new RestClientHrFacade(hrClient);
+    }
+
+    @Bean
+    public EmployeePermissionsPolicy employeePermissionsPolicy(HrFacade hrFacade) {
+        return new HrEmployeePermissionsPolicy(hrFacade);
     }
 
     @Bean
