@@ -14,7 +14,7 @@ public class JMSPublisher implements EventPublisher {
 
     @Override
     public void publish(Event event) {
-        jmsTemplate.convertAndSend(topicName(event), event);
+
     }
 
     private String topicName(Event event) {
