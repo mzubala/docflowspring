@@ -1,13 +1,18 @@
 package pl.com.bottega.docflowjee.docflow.integration;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit4.SpringRunner;
+import pl.com.bottega.docflowjee.docflow.EmployeePosition;
+import pl.com.bottega.docflowjee.docflow.adapters.client.EmployeeDetails;
 import pl.com.bottega.docflowjee.docflow.adapters.rest.CreateDocumentRequest;
 import pl.com.bottega.docflowjee.docflow.adapters.rest.DocumentRequest;
 import pl.com.bottega.docflowjee.docflow.adapters.rest.PublishDocumentRequest;
@@ -24,11 +29,19 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.function.Supplier;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.get;
+import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
+import static pl.com.bottega.docflowjee.docflow.EmployeePosition.LEAD_QMA;
+import static pl.com.bottega.docflowjee.docflow.EmployeePosition.QMA;
+import static pl.com.bottega.docflowjee.docflow.EmployeePosition.SENIOR_QMA;
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 @RunWith(SpringRunner.class)
+@AutoConfigureWireMock(port = 9090)
 public class DocflowTest {
 
     @Autowired
@@ -48,8 +61,16 @@ public class DocflowTest {
         fakeEventPublisher.reset();
     }
 
+    @Autowired
+    private ObjectMapper objectMapper;
+
     @Test
     public void supportsBasicDocumentFlow() {
+        // given
+        employeeHasPosition(empId, QMA);
+        employeeHasPosition(verifierId, SENIOR_QMA);
+        employeeHasPosition(publisherId, LEAD_QMA);
+
         // when
         long ver = 0;
         client.create(docId, new CreateDocumentRequest(empId));
@@ -72,6 +93,9 @@ public class DocflowTest {
 
     @Test
     public void supportsArchiving() {
+        // given
+        employeeHasPosition(empId, LEAD_QMA);
+
         // when
         long ver = 0;
         client.create(docId, new CreateDocumentRequest(empId));
@@ -88,6 +112,11 @@ public class DocflowTest {
 
     @Test
     public void supportsCreatingNewDocumentVersion() {
+        // given
+        employeeHasPosition(empId, QMA);
+        employeeHasPosition(verifierId, SENIOR_QMA);
+        employeeHasPosition(publisherId, LEAD_QMA);
+
         // when
         long ver = 0;
         client.create(docId, new CreateDocumentRequest(empId));
@@ -95,7 +124,7 @@ public class DocflowTest {
         client.passToVerification(docId, new DocumentRequest(empId, ver++));
         client.verify(docId, new DocumentRequest(verifierId, ver++));
         client.publish(docId, new PublishDocumentRequest(publisherId, ver++, deps, false));
-        client.createNewVersion(docId, new DocumentRequest(empId, ver));
+        client.createNewVersion(docId, new DocumentRequest(publisherId, ver));
 
         // then
         fakeEventPublisher.assertEventWasPublished(
@@ -106,6 +135,7 @@ public class DocflowTest {
     @Test
     public void shouldRespondWithHttp422OnIllegalDocumentOperation() {
         // given
+        employeeHasPosition(empId, LEAD_QMA);
         long ver = 0;
         client.create(docId, new CreateDocumentRequest(empId));
 
@@ -155,4 +185,15 @@ public class DocflowTest {
         assertThat(sup.get().getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
     }
 
+    private void employeeHasPosition(Long employeeId, EmployeePosition position) {
+        EmployeeDetails employeeDetails = new EmployeeDetails();
+        employeeDetails.position = position;
+        try {
+           stubFor(get(urlEqualTo("/employees/" + employeeId))
+                .willReturn(aResponse().withBody(objectMapper.writeValueAsString(employeeDetails))
+                    .withHeader("Content-type", "application/json")));
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }

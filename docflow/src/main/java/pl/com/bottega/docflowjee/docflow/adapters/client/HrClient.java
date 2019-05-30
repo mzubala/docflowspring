@@ -1,6 +1,7 @@
 package pl.com.bottega.docflowjee.docflow.adapters.client;
 
 import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
@@ -8,6 +9,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 public interface HrClient {
 
     @RequestMapping(method = RequestMethod.GET, value = "/employees/{id}")
-    EmployeeDetails getEmployeeDetails(Long employeeId);
+    EmployeeDetails getEmployeeDetails(@PathVariable("id") Long employeeId);
 
 }
