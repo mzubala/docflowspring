@@ -14,6 +14,7 @@ import pl.com.bottega.docflowjee.hr.controller.request.EmployeeRequest;
 import pl.com.bottega.docflowjee.hr.controller.response.EmployeeDetails;
 import pl.com.bottega.docflowjee.hr.controller.response.ResourceCreatedResponse;
 import pl.com.bottega.docflowjee.hr.model.Employee;
+import pl.com.bottega.docflowjee.hr.model.Position;
 import pl.com.bottega.docflowjee.hr.model.repository.DepartmentRepository;
 import pl.com.bottega.docflowjee.hr.model.repository.EmployeeRepository;
 
@@ -43,6 +44,7 @@ public class EmployeeController {
         if(request.getSupervisorId() != null) {
             employee.setSupervisor(findEmployeeByIdOrThrow(request.getSupervisorId()));
         }
+        employee.setPosition(request.getPosition());
         employee = employeeRepository.save(employee);
         return new ResourceCreatedResponse(employee.getId());
     }
@@ -59,6 +61,7 @@ public class EmployeeController {
         employee.setFirstName(request.getFirstName());
         employee.setLastName(request.getLastName());
         employee.setDepartments(Sets.newHashSet(departmentRepository.findAllById(request.getDepartmentIds())));
+        employee.setPosition(request.getPosition());
         employeeRepository.save(employee);
     }
 
@@ -73,6 +76,7 @@ public class EmployeeController {
             .departmentIds(employee.getDepartments().stream().map(d -> d.getId()).collect(Collectors.toList()))
             .supervisorId(supervisor == null ? null : supervisor.getId())
             .supervisorsHierarchy(supervisorsHierarchy(supervisor))
+            .position(employee.getPosition())
             .build();
     }
 

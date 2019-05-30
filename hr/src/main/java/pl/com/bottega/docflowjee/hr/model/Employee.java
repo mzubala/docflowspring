@@ -21,6 +21,7 @@ public class Employee {
     private Long id;
     private String firstName;
     private String lastName;
+    private Position position;
 
     @ManyToMany
     @NotEmpty

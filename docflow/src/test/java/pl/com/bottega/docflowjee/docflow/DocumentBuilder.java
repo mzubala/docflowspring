@@ -26,6 +26,7 @@ public class DocumentBuilder {
     private Set<Long> departmentIds;
     private boolean archived;
     private Long aggregateVersion = 1L;
+    private EmployeePermissionsPolicy employeePermissionsPolicy;
 
     public DocumentBuilder id(UUID id) {
         this.id = id;
@@ -53,7 +54,7 @@ public class DocumentBuilder {
     }
 
     public Document build() {
-        Document document = new Document(new CreateDocumentCommand(id, editorId), clock);
+        Document document = new Document(new CreateDocumentCommand(id, editorId), clock, employeePermissionsPolicy);
         if(title != null || content != null) {
             document.update(new UpdateDocumentCommand(id, editorId, title, content, aggregateVersion));
         }
@@ -112,6 +113,11 @@ public class DocumentBuilder {
 
     public DocumentBuilder archived() {
         archived = true;
+        return this;
+    }
+
+    public DocumentBuilder employeePermissionsPolicy(EmployeePermissionsPolicy employeePermissionsPolicy) {
+        this.employeePermissionsPolicy = employeePermissionsPolicy;
         return this;
     }
 }

@@ -9,10 +9,12 @@ import java.time.Clock;
 
 public class DocumentPreparation {
     private final DocumentRepository documentRepository;
+    private final EmployeePermissionsPolicy employeePermissionsPolicy;
     private Clock clock;
 
-    public DocumentPreparation(DocumentRepository documentRepository, Clock clock) {
+    public DocumentPreparation(DocumentRepository documentRepository, EmployeePermissionsPolicy employeePermissionsPolicy, Clock clock) {
         this.documentRepository = documentRepository;
+        this.employeePermissionsPolicy = employeePermissionsPolicy;
         this.clock = clock;
     }
 
@@ -20,25 +22,22 @@ public class DocumentPreparation {
         if(documentRepository.getOptionally(cmd.getDocumentId()).isPresent()) {
             return;
         }
-        Document document = new Document(cmd, clock);
+        Document document = new Document(cmd, clock, employeePermissionsPolicy);
         documentRepository.save(document, -1L);
     }
 
-    @ValidateCommand
     public void update(UpdateDocumentCommand cmd) {
         Document document = documentRepository.get(cmd.getDocumentId());
         document.update(cmd);
         documentRepository.save(document, cmd.getAggregateVersion());
     }
 
-    @ValidateCommand
     public void createNewVersion(CreateNewDocumentVersionCommand cmd) {
         Document document = documentRepository.get(cmd.getDocumentId());
         document.createNewVersion(cmd);
         documentRepository.save(document, cmd.getAggregateVersion());
     }
 
-    @ValidateCommand
     public void archive(ArchiveDocumentCommand cmd) {
         Document document = documentRepository.get(cmd.getDocumentId());
         document.archive(cmd);

@@ -7,8 +7,9 @@ import pl.com.bottega.docflowjee.docflow.DocumentPreparation;
 import pl.com.bottega.docflowjee.docflow.DocumentPublication;
 import pl.com.bottega.docflowjee.docflow.DocumentRepository;
 import pl.com.bottega.docflowjee.docflow.DocumentVerification;
+import pl.com.bottega.docflowjee.docflow.EmployeePermissionsPolicy;
+import pl.com.bottega.docflowjee.docflow.HrEmployeePermissionsPolicy;
 import pl.com.bottega.docflowjee.docflow.adapters.repository.EventStoreDocumentRepository;
-import pl.com.bottega.docflowjee.eventsourcing.mongo.MongoEventStore;
 import pl.com.bottega.eventsourcing.EventPublisher;
 import pl.com.bottega.eventsourcing.EventStore;
 import pl.com.bottega.eventsourcing.EventStoreRepository;
@@ -40,8 +41,13 @@ public class DocflowConfig {
     }
 
     @Bean
-    public DocumentPreparation documentPreparation(DocumentRepository documentRepository, Clock clock) {
-        return new DocumentPreparation(documentRepository, clock);
+    public EmployeePermissionsPolicy employeePermissionsPolicy() {
+        return new HrEmployeePermissionsPolicy();
+    }
+
+    @Bean
+    public DocumentPreparation documentPreparation(DocumentRepository documentRepository, Clock clock, EmployeePermissionsPolicy employeePermissionsPolicy) {
+        return new DocumentPreparation(documentRepository, employeePermissionsPolicy, clock);
     }
 
     @Bean

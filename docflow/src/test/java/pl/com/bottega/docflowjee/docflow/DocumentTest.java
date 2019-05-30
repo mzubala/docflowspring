@@ -28,7 +28,17 @@ import java.util.Set;
 import java.util.UUID;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
 import static pl.com.bottega.docflowjee.docflow.AggregateRootAssertions.assertThatAggregate;
+import static pl.com.bottega.docflowjee.docflow.DocumentOperation.ARCHIVE;
+import static pl.com.bottega.docflowjee.docflow.DocumentOperation.CREATE;
+import static pl.com.bottega.docflowjee.docflow.DocumentOperation.CREATE_NEW_VERSION;
+import static pl.com.bottega.docflowjee.docflow.DocumentOperation.PASS_TO_VERIFICATION;
+import static pl.com.bottega.docflowjee.docflow.DocumentOperation.PUBLISH;
+import static pl.com.bottega.docflowjee.docflow.DocumentOperation.REJECT;
+import static pl.com.bottega.docflowjee.docflow.DocumentOperation.UPDATE;
+import static pl.com.bottega.docflowjee.docflow.DocumentOperation.VERIFY;
 
 public class DocumentTest {
 
@@ -38,8 +48,9 @@ public class DocumentTest {
     private Long otherEditorId = 2L;
     private Long verifierId = 3L;
     private Long publisherId = 4L;
+    private EmployeePermissionsPolicy employeePermissionsPolicy = mock(EmployeePermissionsPolicy.class);
     private DocumentBuilder documentBuilder = new DocumentBuilder().id(id).clock(clock).editorId(editorId)
-        .verifierId(verifierId).publisherId(publisherId);
+        .verifierId(verifierId).publisherId(publisherId).employeePermissionsPolicy(employeePermissionsPolicy);
     private Set<Long> departmentIds = Sets.newSet(1L, 2L);
     private Integer firstVersion = 1;
     private Integer secondVersion = 2;
@@ -48,7 +59,7 @@ public class DocumentTest {
     @Test
     public void createsDocument() {
         //when
-        Document document = new Document(new CreateDocumentCommand(id, editorId), clock);
+        Document document = new Document(new CreateDocumentCommand(id, editorId), clock, employeePermissionsPolicy);
 
         // then
         assertThatAggregate(document).emittedExactly(new DocumentCreatedEvent(id, clock.instant(), editorId));
@@ -69,6 +80,15 @@ public class DocumentTest {
     }
 
     @Test
+    public void doesNotCreateDocumentIfEmployeeIsNotAllowed() {
+        // given
+        doThrow(IllegalDocumentOperationException.class).when(employeePermissionsPolicy).checkPermission(editorId, CREATE);
+
+        // then
+        assertThatThrownBy(() -> new Document(new CreateDocumentCommand(id, editorId), clock, employeePermissionsPolicy)).isInstanceOf(IllegalDocumentOperationException.class);
+    }
+
+    @Test
     public void doesNotUpdateDocumentTitleAndContentAreUnchanged() {
         //given
         Document document = documentBuilder.withTitleAndContent("test", "test").build();
@@ -81,6 +101,16 @@ public class DocumentTest {
     }
 
     @Test
+    public void doesNotUpdateDocumentIfEmployeeIsNotAllowed() {
+        // given
+        doThrow(IllegalDocumentOperationException.class).when(employeePermissionsPolicy).checkPermission(editorId, UPDATE);
+        Document document = documentBuilder.build();
+
+        // then
+        assertThatThrownBy(() -> document.update(new UpdateDocumentCommand(id, editorId, "test", "test", aggregateVersion))).isInstanceOf(IllegalDocumentOperationException.class);
+    }
+
+    @Test
     public void sendsDocumentToVerification() {
         // given
         Document document = documentBuilder.withTitleAndContent("test", "test").build();
@@ -89,6 +119,18 @@ public class DocumentTest {
         document.passToVerification(new PassToVerificationCommand(id, editorId, aggregateVersion));
 
         assertThatAggregate(document).emittedExactly(new DocumentPassedToVerification(id, clock.instant(), firstVersion));
+    }
+
+    @Test
+    public void doesNotSendDocumentToVerificationIfEmployeeIsNotAllowed() {
+        // given
+        Document document = documentBuilder.withTitleAndContent("test", "test").build();
+        doThrow(IllegalDocumentOperationException.class).when(employeePermissionsPolicy).checkPermission(editorId, PASS_TO_VERIFICATION);
+
+        // when
+        assertThatThrownBy(() ->
+            document.passToVerification(new PassToVerificationCommand(id, editorId, aggregateVersion))
+        ).isInstanceOf(IllegalDocumentOperationException.class);
     }
 
     @Test
@@ -145,6 +187,18 @@ public class DocumentTest {
     }
 
     @Test
+    public void doesNotVerifyDocumentIfEmployeeIsNotAllowed() {
+        // given
+        Document document = documentBuilder.passedToVerification().build();
+        doThrow(IllegalDocumentOperationException.class).when(employeePermissionsPolicy).checkPermission(verifierId, VERIFY);
+
+        // when
+        assertThatThrownBy(() ->
+            document.verify(new VerifyDocumentCommand(id, verifierId, aggregateVersion))
+        ).isInstanceOf(IllegalDocumentOperationException.class);
+    }
+
+    @Test
     public void doesNothingWhenTryingToVerifyIfItWasAlreadyDone() {
         // given
         Document document = documentBuilder.verified().build();
@@ -184,7 +238,20 @@ public class DocumentTest {
     }
 
     @Test
-    public void doesNothingWhenTryingToRejectIfItWasAlreadyDone() {
+    public void doesNotRejectDocumentIfEmployeeIsNotAllowed() {
+        // given
+        Document document = documentBuilder.passedToVerification().build();
+        doThrow(IllegalDocumentOperationException.class).when(employeePermissionsPolicy).checkPermission(editorId, REJECT);
+        String reason = "test reason";
+
+        // when
+        assertThatThrownBy(() ->
+            document.reject(new RejectDocumentCommand(id, editorId, reason, aggregateVersion))
+        ).isInstanceOf(IllegalDocumentOperationException.class);
+    }
+
+    @Test
+    public void doesNotRejectWhenEmployeeIsNotAllowed() {
         // given
         Document document = documentBuilder.passedToVerification().build();
         document.reject(new RejectDocumentCommand(id, verifierId, "test", aggregateVersion));
@@ -222,6 +289,18 @@ public class DocumentTest {
 
         // then
         assertThatAggregate(document).emittedExactly(new DocumentPublishedEvent(id, clock.instant(), Sets.newSet(4L), firstVersion));
+    }
+
+    @Test
+    public void doesNotPublishIfEmployeeIsNotAllowed() {
+        // given
+        Document document = documentBuilder.verified().build();
+        doThrow(IllegalDocumentOperationException.class).when(employeePermissionsPolicy).checkPermission(editorId, PUBLISH);
+
+        // then
+        assertThatThrownBy(() ->
+            document.publish(new PublishDocumentCommand(id, editorId, departmentIds, aggregateVersion))
+        ).isInstanceOf(IllegalDocumentOperationException.class);
     }
 
     @Test
@@ -274,6 +353,18 @@ public class DocumentTest {
     }
 
     @Test
+    public void doesNotCreateNewVersionIfEmployeeIsNotAllowed() {
+        // given
+        Document document = documentBuilder.published().build();
+        doThrow(IllegalDocumentOperationException.class).when(employeePermissionsPolicy).checkPermission(editorId, CREATE_NEW_VERSION);
+
+        // then
+        assertThatThrownBy(() ->
+            document.createNewVersion(new CreateNewDocumentVersionCommand(id, editorId, aggregateVersion))
+        ).isInstanceOf(IllegalDocumentOperationException.class);
+    }
+
+    @Test
     public void archivesDocuments() {
         // given
         List<Document> docs = List.of(
@@ -290,6 +381,18 @@ public class DocumentTest {
         docs.forEach((doc) -> {
             assertThatAggregate(doc).emittedExactly(new DocumentArchivedEvent(id, clock.instant(), firstVersion));
         });
+    }
+
+    @Test
+    public void doesNotArchiveIfEmployeeIsNotAllowed() {
+        // given
+        Document document = documentBuilder.published().build();
+        doThrow(IllegalDocumentOperationException.class).when(employeePermissionsPolicy).checkPermission(editorId, ARCHIVE);
+
+        // then
+        assertThatThrownBy(() ->
+            document.archive(new ArchiveDocumentCommand(id, editorId, aggregateVersion))
+        ).isInstanceOf(IllegalDocumentOperationException.class);
     }
 
     @Test
