@@ -133,7 +133,7 @@ public class DocflowTest {
         var resp = client.update(docId, new UpdateDocumentRequest(empId, 0L, "test2", "test2"));
 
         // then
-        assertThat(resp.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+        assertThat(resp.getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
     }
 
 }
