@@ -24,6 +24,7 @@
         <module>docflow-events</module>
         <module>eventstore-jpa</module>
         <module>eventstore-mongo</module>
+        <module>confirmations</module>
     </modules>
 
     <build>

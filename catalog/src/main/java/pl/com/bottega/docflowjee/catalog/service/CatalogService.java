@@ -1,6 +1,8 @@
 package pl.com.bottega.docflowjee.catalog.service;
 
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 import pl.com.bottega.docflowjee.catalog.model.BasicDocumentInfo;
 import pl.com.bottega.docflowjee.catalog.model.DocumentDetails;
@@ -8,6 +10,7 @@ import pl.com.bottega.docflowjee.catalog.model.DocumentStatus;
 import pl.com.bottega.docflowjee.catalog.model.DocumentVersion;
 import pl.com.bottega.docflowjee.catalog.repository.BasicDocumentInfoRepository;
 import pl.com.bottega.docflowjee.catalog.repository.CatalogQuery;
+import pl.com.bottega.docflowjee.catalog.repository.CatalogQuerySpecification;
 import pl.com.bottega.docflowjee.catalog.repository.DocumentDetailsRepository;
 import pl.com.bottega.docflowjee.docflow.events.DocumentArchivedEvent;
 import pl.com.bottega.docflowjee.docflow.events.DocumentCreatedEvent;
@@ -166,7 +169,11 @@ public class CatalogService {
     }
 
     public Page<BasicDocumentInfo> search(CatalogQuery query) {
-        return null;
+        return basicDocumentInfoDao.findAll(
+            new CatalogQuerySpecification(query),
+            Sort.by(query.sortBy),
+            PageRequest.of(query.page, query.perPage)
+        );
     }
 
 }
