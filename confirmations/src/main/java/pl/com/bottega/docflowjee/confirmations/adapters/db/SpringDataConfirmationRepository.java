@@ -4,7 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.data.repository.Repository;
 import pl.com.bottega.docflowjee.confirmations.domain.Confirmation;
 import pl.com.bottega.docflowjee.confirmations.domain.ConfirmationRepository;
 import reactor.core.publisher.Mono;
@@ -20,7 +19,7 @@ public class SpringDataConfirmationRepository implements ConfirmationRepository 
 
     @Override
     public Mono<Void> save(List<Confirmation> confirmations) {
-        return mongoConfirmationRepository.save(
+        return mongoConfirmationRepository.saveAll(
             confirmations.stream().map(this::toMongoConfirmation).collect(toList())
         );
     }

@@ -22,7 +22,7 @@ public class HrClient implements HrFacade {
 
     @Override
     public Mono<EmployeesInDepartments> getEmployeesInDepartment(Set<Long> departmentIds) {
-        return webClient.get().uri(hrUrl)
+        return webClient.get().uri(hrUrl + "/employee-departments")
             .accept(MediaType.APPLICATION_JSON).retrieve()
             .bodyToMono(EmployeesInDepartments.class);
     }
