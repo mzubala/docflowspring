@@ -44,4 +44,8 @@ public class DocumentRejectedEvent extends Event {
             ", version=" + version +
             "} " + super.toString();
     }
+
+    public String getReason() {
+        return reason;
+    }
 }
