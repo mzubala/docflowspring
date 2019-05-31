@@ -1,0 +1,6 @@
+spring.jms.isPubSubDomain: true
+feign.hystrix.enabled: true
+
+service:
+  hr:
+    url: http://localhost:9191
