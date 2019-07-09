@@ -8,7 +8,6 @@ public class CreateDocumentCommand implements Command {
 
     public UUID documentId;
     public Long employeeId;
-    public Long aggregateVersion;
 
     public CreateDocumentCommand(UUID documentId, Long employeeId) {
         this.documentId = documentId;
