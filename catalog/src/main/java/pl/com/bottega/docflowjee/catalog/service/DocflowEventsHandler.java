@@ -22,12 +22,12 @@ import javax.transaction.Transactional;
 import java.util.UUID;
 
 @Component
-public class CatalogService {
+public class DocflowEventsHandler {
 
     private final BasicDocumentInfoRepository basicDocumentInfoDao;
     private final DocumentDetailsRepository documentDetailsDao;
 
-    public CatalogService(BasicDocumentInfoRepository basicDocumentInfoRepository, DocumentDetailsRepository documentDetailsDao) {
+    public DocflowEventsHandler(BasicDocumentInfoRepository basicDocumentInfoRepository, DocumentDetailsRepository documentDetailsDao) {
         this.basicDocumentInfoDao = basicDocumentInfoRepository;
         this.documentDetailsDao = documentDetailsDao;
     }
