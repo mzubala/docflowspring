@@ -12,21 +12,18 @@ public class DocumentVerification {
         this.documentRepository = documentRepository;
     }
 
-    @ValidateCommand
     public void passToVerification(PassToVerificationCommand cmd) {
         Document document = documentRepository.get(cmd.getDocumentId());
         document.passToVerification(cmd);
         documentRepository.save(document, cmd.getAggregateVersion());
     }
 
-    @ValidateCommand
     public void verify(VerifyDocumentCommand cmd) {
         Document document = documentRepository.get(cmd.getDocumentId());
         document.verify(cmd);
         documentRepository.save(document, cmd.getAggregateVersion());
     }
 
-    @ValidateCommand
     public void reject(RejectDocumentCommand cmd) {
         Document document = documentRepository.get(cmd.getDocumentId());
         document.reject(cmd);

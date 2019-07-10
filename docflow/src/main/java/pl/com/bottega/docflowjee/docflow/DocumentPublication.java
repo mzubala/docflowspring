@@ -10,7 +10,6 @@ public class DocumentPublication {
         this.documentRepository = documentRepository;
     }
 
-    @ValidateCommand
     public void publish(PublishDocumentCommand cmd) {
         Document document = documentRepository.get(cmd.getDocumentId());
         document.publish(cmd);
