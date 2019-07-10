@@ -34,38 +34,12 @@ public class CatalogService {
 
     @Transactional
     public void process(DocumentCreatedEvent event) {
-        BasicDocumentInfo basicDocumentInfo = new BasicDocumentInfo();
-        basicDocumentInfo.setDocumentId(event.getAggregateId());
-        basicDocumentInfo.setStatus(DocumentStatus.DRAFT);
 
-        DocumentDetails details = new DocumentDetails();
-        DocumentVersion version = new DocumentVersion();
-        version.setDocumentVersionNumber(1);
-        version.setStatus(DocumentStatus.DRAFT);
-        details.setCurrentVersion(version);
-        details.setDocumentId(event.getAggregateId());
-
-        basicDocumentInfo.setAggregateVersion(event.getAggregateVersion());
-        details.setAggregateVersion(event.getAggregateVersion());
-        basicDocumentInfoDao.save(basicDocumentInfo);
-        documentDetailsDao.save(details);
     }
 
     @Transactional
     public void process(DocumentUpdatedEvent event) {
-        BasicDocumentInfo basicDocumentInfo = basicDocumentInfoDao.findById(event.getAggregateId());
-        basicDocumentInfo.setStatus(DocumentStatus.DRAFT);
-        basicDocumentInfo.setTitle(event.getTitle());
-        basicDocumentInfo.setContentBrief(contentBrief(event.getContent()));
 
-        DocumentDetails documentDetails = documentDetailsDao.findByDocumentId(event.getAggregateId());
-        DocumentVersion currentVersion = documentDetails.getCurrentVersion();
-        currentVersion.setStatus(DocumentStatus.DRAFT);
-        currentVersion.setContent(event.getContent());
-        currentVersion.setTitle(event.getTitle());
-
-        basicDocumentInfo.setAggregateVersion(event.getAggregateVersion());
-        documentDetails.setAggregateVersion(event.getAggregateVersion());
     }
 
     private String contentBrief(String content) {
@@ -78,96 +52,32 @@ public class CatalogService {
 
     @Transactional
     public void process(DocumentPassedToVerification event) {
-        BasicDocumentInfo basicDocumentInfo = basicDocumentInfoDao.findById(event.getAggregateId());
-        basicDocumentInfo.setStatus(DocumentStatus.WAITING_VERIFICATION);
 
-        DocumentDetails documentDetails = documentDetailsDao.findByDocumentId(event.getAggregateId());
-        DocumentVersion currentVersion = documentDetails.getCurrentVersion();
-        currentVersion.setStatus(DocumentStatus.WAITING_VERIFICATION);
-
-        basicDocumentInfo.setAggregateVersion(event.getAggregateVersion());
-        documentDetails.setAggregateVersion(event.getAggregateVersion());
     }
 
     @Transactional
     public void process(DocumentVerifiedEvent event) {
-        BasicDocumentInfo basicDocumentInfo = basicDocumentInfoDao.findById(event.getAggregateId());
-        basicDocumentInfo.setStatus(DocumentStatus.VERIFIED);
 
-        DocumentDetails documentDetails = documentDetailsDao.findByDocumentId(event.getAggregateId());
-        DocumentVersion currentVersion = documentDetails.getCurrentVersion();
-        currentVersion.setStatus(DocumentStatus.VERIFIED);
-
-        basicDocumentInfo.setAggregateVersion(event.getAggregateVersion());
-        documentDetails.setAggregateVersion(event.getAggregateVersion());
     }
 
     @Transactional
     public void process(DocumentRejectedEvent event) {
-        BasicDocumentInfo basicDocumentInfo = basicDocumentInfoDao.findById(event.getAggregateId());
-        basicDocumentInfo.setStatus(DocumentStatus.DRAFT);
 
-        DocumentDetails documentDetails = documentDetailsDao.findByDocumentId(event.getAggregateId());
-        DocumentVersion currentVersion = documentDetails.getCurrentVersion();
-        currentVersion.setStatus(DocumentStatus.DRAFT);
-        currentVersion.setRejectionReason(event.getReason());
-
-        basicDocumentInfo.setAggregateVersion(event.getAggregateVersion());
-        documentDetails.setAggregateVersion(event.getAggregateVersion());
     }
 
     @Transactional
     public void process(DocumentPublishedEvent event) {
-        BasicDocumentInfo basicDocumentInfo = basicDocumentInfoDao.findById(event.getAggregateId());
-        basicDocumentInfo.setStatus(DocumentStatus.PUBLISHED);
 
-        DocumentDetails documentDetails = documentDetailsDao.findByDocumentId(event.getAggregateId());
-        DocumentVersion currentVersion = documentDetails.getCurrentVersion();
-        currentVersion.setStatus(DocumentStatus.PUBLISHED);
-        currentVersion.getPublishedFor().addAll(event.getDepartmentIds());
-
-        basicDocumentInfo.setAggregateVersion(event.getAggregateVersion());
-        documentDetails.setAggregateVersion(event.getAggregateVersion());
     }
 
     @Transactional
     public void process(DocumentArchivedEvent event) {
-        BasicDocumentInfo basicDocumentInfo = basicDocumentInfoDao.findById(event.getAggregateId());
-        basicDocumentInfo.setStatus(DocumentStatus.ARCHIVED);
 
-        DocumentDetails documentDetails = documentDetailsDao.findByDocumentId(event.getAggregateId());
-        DocumentVersion currentVersion = documentDetails.getCurrentVersion();
-        currentVersion.setStatus(DocumentStatus.ARCHIVED);
-
-        basicDocumentInfo.setAggregateVersion(event.getAggregateVersion());
-        documentDetails.setAggregateVersion(event.getAggregateVersion());
     }
 
     @Transactional
     public void process(NewDocumentVersionCreatedEvent event) {
-        BasicDocumentInfo basicDocumentInfo = basicDocumentInfoDao.findById(event.getAggregateId());
-        basicDocumentInfo.setStatus(DocumentStatus.DRAFT);
 
-        DocumentDetails documentDetails = documentDetailsDao.findByDocumentId(event.getAggregateId());
-        DocumentVersion currentVersion = new DocumentVersion();
-        currentVersion.setDocumentVersionNumber(event.getVersion());
-        currentVersion.setTitle(documentDetails.getCurrentVersion().getTitle());
-        currentVersion.setContent(documentDetails.getCurrentVersion().getContent());
-        currentVersion.setStatus(DocumentStatus.DRAFT);
-        documentDetails.getPreviousVersions().add(documentDetails.getCurrentVersion());
-        documentDetails.setCurrentVersion(currentVersion);
-
-        basicDocumentInfo.setAggregateVersion(event.getAggregateVersion());
-        documentDetails.setAggregateVersion(event.getAggregateVersion());
     }
-
-    public DocumentDetails getDetails(UUID documentId) {
-        return null;
-    }
-
-    public Page<BasicDocumentInfo> search(CatalogQuery query) {
-        return null;
-    }
-
 }
 
