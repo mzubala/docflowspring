@@ -1,13 +1,11 @@
 package pl.com.bottega.docflowjee.catalog.service;
 
-import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 import pl.com.bottega.docflowjee.catalog.model.BasicDocumentInfo;
 import pl.com.bottega.docflowjee.catalog.model.DocumentDetails;
 import pl.com.bottega.docflowjee.catalog.model.DocumentStatus;
 import pl.com.bottega.docflowjee.catalog.model.DocumentVersion;
 import pl.com.bottega.docflowjee.catalog.repository.BasicDocumentInfoRepository;
-import pl.com.bottega.docflowjee.catalog.repository.CatalogQuery;
 import pl.com.bottega.docflowjee.catalog.repository.DocumentDetailsRepository;
 import pl.com.bottega.docflowjee.docflow.events.DocumentArchivedEvent;
 import pl.com.bottega.docflowjee.docflow.events.DocumentCreatedEvent;
@@ -19,15 +17,14 @@ import pl.com.bottega.docflowjee.docflow.events.DocumentVerifiedEvent;
 import pl.com.bottega.docflowjee.docflow.events.NewDocumentVersionCreatedEvent;
 
 import javax.transaction.Transactional;
-import java.util.UUID;
 
 @Component
-public class CatalogService {
+public class DocflowEventsHandler {
 
     private final BasicDocumentInfoRepository basicDocumentInfoDao;
     private final DocumentDetailsRepository documentDetailsDao;
 
-    public CatalogService(BasicDocumentInfoRepository basicDocumentInfoRepository, DocumentDetailsRepository documentDetailsDao) {
+    public DocflowEventsHandler(BasicDocumentInfoRepository basicDocumentInfoRepository, DocumentDetailsRepository documentDetailsDao) {
         this.basicDocumentInfoDao = basicDocumentInfoRepository;
         this.documentDetailsDao = documentDetailsDao;
     }
@@ -160,14 +157,5 @@ public class CatalogService {
         basicDocumentInfo.setAggregateVersion(event.getAggregateVersion());
         documentDetails.setAggregateVersion(event.getAggregateVersion());
     }
-
-    public DocumentDetails getDetails(UUID documentId) {
-        return null;
-    }
-
-    public Page<BasicDocumentInfo> search(CatalogQuery query) {
-        return null;
-    }
-
 }
 

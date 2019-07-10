@@ -2,7 +2,7 @@ package pl.com.bottega.docflowjee.catalog.jms;
 
 import org.springframework.jms.annotation.JmsListener;
 import org.springframework.stereotype.Component;
-import pl.com.bottega.docflowjee.catalog.service.CatalogService;
+import pl.com.bottega.docflowjee.catalog.service.DocflowEventsHandler;
 import pl.com.bottega.docflowjee.docflow.events.DocumentArchivedEvent;
 import pl.com.bottega.docflowjee.docflow.events.DocumentCreatedEvent;
 import pl.com.bottega.docflowjee.docflow.events.DocumentPassedToVerification;
@@ -15,49 +15,49 @@ import pl.com.bottega.docflowjee.docflow.events.NewDocumentVersionCreatedEvent;
 @Component
 public class DocflowListener  {
 
-    private final CatalogService catalogService;
+    private final DocflowEventsHandler docflowEventsHandler;
 
-    public DocflowListener(CatalogService catalogService) {
-        this.catalogService = catalogService;
+    public DocflowListener(DocflowEventsHandler docflowEventsHandler) {
+        this.docflowEventsHandler = docflowEventsHandler;
     }
 
     @JmsListener(destination = "docflow/DocumentCreatedEvent")
-    public void handle(DocumentCreatedEvent event) {
-        catalogService.process(event);
+    public void listen(DocumentCreatedEvent event) {
+        docflowEventsHandler.process(event);
     }
 
     @JmsListener(destination = "docflow/DocumentUpdatedEvent")
-    public void handle(DocumentUpdatedEvent event) {
-        catalogService.process(event);
+    public void listen(DocumentUpdatedEvent event) {
+        docflowEventsHandler.process(event);
     }
 
     @JmsListener(destination = "docflow/DocumentVerifiedEvent")
-    public void handle(DocumentVerifiedEvent event) {
-        catalogService.process(event);
+    public void listen(DocumentVerifiedEvent event) {
+        docflowEventsHandler.process(event);
     }
 
     @JmsListener(destination = "docflow/DocumentPublishedEvent")
-    public void handle(DocumentPublishedEvent event) {
-        catalogService.process(event);
+    public void listen(DocumentPublishedEvent event) {
+        docflowEventsHandler.process(event);
     }
 
     @JmsListener(destination = "docflow/DocumentPassedToVerification")
-    public void handle(DocumentPassedToVerification event) {
-        catalogService.process(event);
+    public void listen(DocumentPassedToVerification event) {
+        docflowEventsHandler.process(event);
     }
 
     @JmsListener(destination = "docflow/DocumentArchivedEvent")
-    public void handle(DocumentArchivedEvent event) {
-        catalogService.process(event);
+    public void listen(DocumentArchivedEvent event) {
+        docflowEventsHandler.process(event);
     }
 
     @JmsListener(destination = "docflow/NewDocumentVersionCreatedEvent")
-    public void handle(NewDocumentVersionCreatedEvent event) {
-        catalogService.process(event);
+    public void listen(NewDocumentVersionCreatedEvent event) {
+        docflowEventsHandler.process(event);
     }
 
     @JmsListener(destination = "docflow/DocumentRejectedEvent")
-    public void handle(DocumentRejectedEvent event) {
-        catalogService.process(event);
+    public void listen(DocumentRejectedEvent event) {
+        docflowEventsHandler.process(event);
     }
 }
