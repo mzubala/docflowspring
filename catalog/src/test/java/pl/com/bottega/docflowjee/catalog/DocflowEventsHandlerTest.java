@@ -31,16 +31,16 @@ import static pl.com.bottega.docflowjee.catalog.DocumentDetailsAssertions.assert
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 @RunWith(SpringRunner.class)
-public class CatalogTest {
-
-    @Autowired
-    private JmsTemplate jmsTemplate;
+public class DocflowEventsHandlerTest {
 
     @Autowired
     private BasicDocumentInfoRepository basicDocumentInfoRepository;
 
     @Autowired
     private DocumentDetailsRepository documentDetailsRepository;
+
+    @Autowired
+    private EventsSender sender;
 
     private UUID docId = UUID.randomUUID();
 
@@ -226,11 +226,7 @@ public class CatalogTest {
     }
 
     private void sendEvent(Event event) {
-        jmsTemplate.convertAndSend(String.format("docflow/%s", event.getClass().getSimpleName()), event.withAggregateVersion(++aggregateVersion));
-        await().untilAsserted(() -> {
-            assertBasicDocumentInfo(docId, basicDocumentInfoRepository).hasAggregateVersion(aggregateVersion);
-            assertDocumentDetails(docId, documentDetailsRepository).hasAggregateVersion(aggregateVersion);
-        });
+        sender.sendEvent(event, ++aggregateVersion);
     }
 
     private String stringOf(String string, int count) {
@@ -240,4 +236,5 @@ public class CatalogTest {
         }
         return sb.toString();
     }
+
 }
