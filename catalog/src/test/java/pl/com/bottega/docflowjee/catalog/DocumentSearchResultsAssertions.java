@@ -22,4 +22,9 @@ public class DocumentSearchResultsAssertions {
         assertThat(searchResults.getDocumentDetails().stream().map(d -> d.getDocumentId())).containsExactly(docIds);
         return this;
     }
+
+    public DocumentSearchResultsAssertions hasNoResults() {
+        assertThat(searchResults.getDocumentDetails()).isEmpty();
+        return this;
+    }
 }

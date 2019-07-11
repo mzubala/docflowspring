@@ -6,6 +6,7 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
+import pl.com.bottega.docflowjee.catalog.model.DocumentStatus;
 import pl.com.bottega.docflowjee.catalog.rest.DocumentQuery;
 import pl.com.bottega.docflowjee.catalog.rest.DocumentSearchResults;
 import pl.com.bottega.docflowjee.docflow.events.DocumentCreatedEvent;
@@ -56,10 +57,14 @@ public class DocumentSearchTest {
         eventProcessed(new DocumentUpdatedEvent(doc4Id, empId, now(), "całkiem inny tytuł", "całkiem inna treść", 1), 1L);
 
         // when
-        DocumentSearchResults searchResults = catalogClient.search(new DocumentQuery().withPhrase("test"));
+        DocumentSearchResults searchResults1 = catalogClient.search(new DocumentQuery().withPhrase("test"));
+        DocumentSearchResults searchResults2 = catalogClient.search(new DocumentQuery().withPhrase("brak"));
+        DocumentSearchResults searchResults3 = catalogClient.search(new DocumentQuery().withPhrase("test").withStatus(DocumentStatus.PUBLISHED));
 
         // then
-        assertThatSearchResults(searchResults).hasExactly(doc1Id, doc2Id);
+        assertThatSearchResults(searchResults1).hasExactly(doc1Id, doc2Id);
+        assertThatSearchResults(searchResults2).hasNoResults();
+        assertThatSearchResults(searchResults3).hasNoResults();
     }
 
     private void eventProcessed(Event event, Long aggregateVersion) {
