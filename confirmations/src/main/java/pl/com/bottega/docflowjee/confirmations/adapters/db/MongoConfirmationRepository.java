@@ -8,7 +8,12 @@ public interface MongoConfirmationRepository extends Repository<MongoConfirmatio
 
     Mono<Void> saveAll(Iterable<MongoConfirmation> toSave);
 
+    Mono<Void> save(MongoConfirmation toSave);
+
     Flux<MongoConfirmation> findAll();
 
     Mono<Long> count();
+
+    Mono<MongoConfirmation> findByDocumentIdAndEmployeeId(String documentId, Long employeeId);
+
 }

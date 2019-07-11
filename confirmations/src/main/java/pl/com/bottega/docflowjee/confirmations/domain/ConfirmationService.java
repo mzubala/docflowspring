@@ -33,4 +33,11 @@ public class ConfirmationService {
         return confirmationRepository.save(confirmations);
     }
 
+    public Mono<Void> confirm(UUID documentId, Long employeeId) {
+        return confirmationRepository
+            .get(documentId, employeeId)
+            .map(Confirmation::confirm)
+            .map(confirmationRepository::save)
+            .then();
+    }
 }

@@ -15,7 +15,7 @@ public class ConfirmationsResource {
 
     @PutMapping("/confirmations")
     public Mono<Void> confirm(@RequestBody ConfirmationRequest request) {
-        return Mono.empty();
+        return confirmationService.confirm(request.getDocumentId(), request.getEmployeeId());
     }
 
 }
