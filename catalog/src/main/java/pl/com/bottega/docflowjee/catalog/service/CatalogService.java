@@ -2,7 +2,6 @@ package pl.com.bottega.docflowjee.catalog.service;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 import pl.com.bottega.docflowjee.catalog.model.BasicDocumentInfo;
 import pl.com.bottega.docflowjee.catalog.model.DocumentDetails;
@@ -61,7 +60,7 @@ public class CatalogService {
         basicDocumentInfo.setTitle(event.getTitle());
         basicDocumentInfo.setContentBrief(contentBrief(event.getContent()));
 
-        DocumentDetails documentDetails = documentDetailsDao.find(event.getAggregateId());
+        DocumentDetails documentDetails = documentDetailsDao.findByDocumentId(event.getAggregateId());
         DocumentVersion currentVersion = documentDetails.getCurrentVersion();
         currentVersion.setStatus(DocumentStatus.DRAFT);
         currentVersion.setContent(event.getContent());
@@ -84,7 +83,7 @@ public class CatalogService {
         BasicDocumentInfo basicDocumentInfo = basicDocumentInfoDao.findById(event.getAggregateId());
         basicDocumentInfo.setStatus(DocumentStatus.WAITING_VERIFICATION);
 
-        DocumentDetails documentDetails = documentDetailsDao.find(event.getAggregateId());
+        DocumentDetails documentDetails = documentDetailsDao.findByDocumentId(event.getAggregateId());
         DocumentVersion currentVersion = documentDetails.getCurrentVersion();
         currentVersion.setStatus(DocumentStatus.WAITING_VERIFICATION);
 
@@ -97,7 +96,7 @@ public class CatalogService {
         BasicDocumentInfo basicDocumentInfo = basicDocumentInfoDao.findById(event.getAggregateId());
         basicDocumentInfo.setStatus(DocumentStatus.VERIFIED);
 
-        DocumentDetails documentDetails = documentDetailsDao.find(event.getAggregateId());
+        DocumentDetails documentDetails = documentDetailsDao.findByDocumentId(event.getAggregateId());
         DocumentVersion currentVersion = documentDetails.getCurrentVersion();
         currentVersion.setStatus(DocumentStatus.VERIFIED);
 
@@ -110,7 +109,7 @@ public class CatalogService {
         BasicDocumentInfo basicDocumentInfo = basicDocumentInfoDao.findById(event.getAggregateId());
         basicDocumentInfo.setStatus(DocumentStatus.DRAFT);
 
-        DocumentDetails documentDetails = documentDetailsDao.find(event.getAggregateId());
+        DocumentDetails documentDetails = documentDetailsDao.findByDocumentId(event.getAggregateId());
         DocumentVersion currentVersion = documentDetails.getCurrentVersion();
         currentVersion.setStatus(DocumentStatus.DRAFT);
         currentVersion.setRejectionReason(event.getReason());
@@ -124,7 +123,7 @@ public class CatalogService {
         BasicDocumentInfo basicDocumentInfo = basicDocumentInfoDao.findById(event.getAggregateId());
         basicDocumentInfo.setStatus(DocumentStatus.PUBLISHED);
 
-        DocumentDetails documentDetails = documentDetailsDao.find(event.getAggregateId());
+        DocumentDetails documentDetails = documentDetailsDao.findByDocumentId(event.getAggregateId());
         DocumentVersion currentVersion = documentDetails.getCurrentVersion();
         currentVersion.setStatus(DocumentStatus.PUBLISHED);
         currentVersion.getPublishedFor().addAll(event.getDepartmentIds());
@@ -138,7 +137,7 @@ public class CatalogService {
         BasicDocumentInfo basicDocumentInfo = basicDocumentInfoDao.findById(event.getAggregateId());
         basicDocumentInfo.setStatus(DocumentStatus.ARCHIVED);
 
-        DocumentDetails documentDetails = documentDetailsDao.find(event.getAggregateId());
+        DocumentDetails documentDetails = documentDetailsDao.findByDocumentId(event.getAggregateId());
         DocumentVersion currentVersion = documentDetails.getCurrentVersion();
         currentVersion.setStatus(DocumentStatus.ARCHIVED);
 
@@ -151,7 +150,7 @@ public class CatalogService {
         BasicDocumentInfo basicDocumentInfo = basicDocumentInfoDao.findById(event.getAggregateId());
         basicDocumentInfo.setStatus(DocumentStatus.DRAFT);
 
-        DocumentDetails documentDetails = documentDetailsDao.find(event.getAggregateId());
+        DocumentDetails documentDetails = documentDetailsDao.findByDocumentId(event.getAggregateId());
         DocumentVersion currentVersion = new DocumentVersion();
         currentVersion.setDocumentVersionNumber(event.getVersion());
         currentVersion.setTitle(documentDetails.getCurrentVersion().getTitle());
@@ -171,7 +170,6 @@ public class CatalogService {
     public Page<BasicDocumentInfo> search(CatalogQuery query) {
         return basicDocumentInfoDao.findAll(
             new CatalogQuerySpecification(query),
-            Sort.by(query.sortBy),
             PageRequest.of(query.page, query.perPage)
         );
     }

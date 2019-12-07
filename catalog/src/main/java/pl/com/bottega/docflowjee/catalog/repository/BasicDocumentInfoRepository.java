@@ -14,5 +14,5 @@ public interface BasicDocumentInfoRepository extends Repository<BasicDocumentInf
 
     BasicDocumentInfo findById(UUID aggregateId);
 
-    Page<BasicDocumentInfo> findAll(Specification<BasicDocumentInfo> specification, Sort sort, Pageable pageable);
+    Page<BasicDocumentInfo> findAll(Specification<BasicDocumentInfo> specification, Pageable pageable);
 }

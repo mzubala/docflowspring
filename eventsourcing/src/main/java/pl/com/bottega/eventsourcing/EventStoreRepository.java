@@ -33,7 +33,8 @@ public class EventStoreRepository<A extends AggregateRoot> implements Repository
         }
         A aggregateRoot = instantiateAggregate();
         aggregateRoot.loadFromHistory(events);
-        postLoadCallback.peek(it -> it.accept(aggregateRoot));        return Optional.of(aggregateRoot);
+        postLoadCallback.peek(it -> it.accept(aggregateRoot));
+        return Optional.of(aggregateRoot);
     }
 
     private A instantiateAggregate() {
