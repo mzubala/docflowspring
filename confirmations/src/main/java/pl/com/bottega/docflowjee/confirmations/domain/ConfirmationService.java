@@ -16,11 +16,9 @@ public class ConfirmationService {
     private final ConfirmationRepository confirmationRepository;
 
     public Mono<Void> createConfirmations(DocumentPublishedEvent event) {
-        Mono<EmployeesInDepartments> employeesInDepartmentsMono = hrFacade.getEmployeesInDepartment(event.getDepartmentIds());
-        Mono<List<Confirmation>> confirmationsMono = employeesInDepartmentsMono.map(
+        return hrFacade.getEmployeesInDepartment(event.getDepartmentIds()).map(
             employeesInDepartments -> createConfirmations(event.getAggregateId(), employeesInDepartments)
-        );
-        return confirmationsMono.flatMap(this::saveConfirmations);
+        ).flatMap(this::saveConfirmations);
     }
 
     private List<Confirmation> createConfirmations(UUID documentId, EmployeesInDepartments employeesInDepartments) {
@@ -33,4 +31,10 @@ public class ConfirmationService {
         return confirmationRepository.save(confirmations);
     }
 
+    public Mono<Void> confirm(UUID documentId, Long employeeId) {
+        return confirmationRepository
+            .findFor(documentId, employeeId)
+            .map(Confirmation::confirm)
+            .flatMap(confirmation -> confirmationRepository.save(confirmation));
+    }
 }

@@ -7,7 +7,7 @@ import java.util.UUID;
 @Data
 public class ConfirmationRequest {
 
-    private Long employeeId;
-    private UUID documentId;
+    private final Long employeeId;
+    private final UUID documentId;
 
 }

@@ -8,7 +8,9 @@ import pl.com.bottega.docflowjee.confirmations.domain.Confirmation;
 import pl.com.bottega.docflowjee.confirmations.domain.ConfirmationRepository;
 import reactor.core.publisher.Mono;
 
+import java.io.Serializable;
 import java.util.List;
+import java.util.UUID;
 
 import static java.util.stream.Collectors.toList;
 
@@ -24,12 +26,35 @@ public class SpringDataConfirmationRepository implements ConfirmationRepository 
         );
     }
 
+    @Override
+    public Mono<Void> save(Confirmation confirmation) {
+        return mongoConfirmationRepository.save(toMongoConfirmation(confirmation)).then();
+    }
+
+    @Override
+    public Mono<Confirmation> findFor(UUID documentId, Long employeeId) {
+        return mongoConfirmationRepository.findById(new MongoConfirmationId(documentId.toString(), employeeId)).map(
+            this::fromMongoConfirmation
+        );
+    }
+
+    private Confirmation fromMongoConfirmation(MongoConfirmation mongoConfirmation) {
+        return new Confirmation(
+            UUID.fromString(mongoConfirmation.id.documentId),
+            mongoConfirmation.id.employeeId,
+            mongoConfirmation.confirmingEmployeeId,
+            mongoConfirmation.confirmed
+        );
+    }
+
     private MongoConfirmation toMongoConfirmation(Confirmation confirmation) {
         return MongoConfirmation.builder()
             .confirmed(confirmation.isConfirmed())
             .confirmingEmployeeId(confirmation.getConfirmingEmployeeId())
-            .employeeId(confirmation.getEmployeeId())
-            .documentId(confirmation.getDocumentId().toString())
+            .id(
+                MongoConfirmationId.builder().documentId(confirmation.getDocumentId().toString())
+                    .employeeId(confirmation.getEmployeeId()).build()
+            )
             .build();
     }
 
@@ -39,10 +64,14 @@ public class SpringDataConfirmationRepository implements ConfirmationRepository 
 @Builder
 class MongoConfirmation {
     @Id
-    private String id;
-    private String documentId;
-    private Long employeeId;
-    private Long confirmingEmployeeId;
-    private boolean confirmed;
+    MongoConfirmationId id;
+    Long confirmingEmployeeId;
+    boolean confirmed;
+}
+
+@Builder
+class MongoConfirmationId implements Serializable {
+    String documentId;
+    Long employeeId;
 }
 

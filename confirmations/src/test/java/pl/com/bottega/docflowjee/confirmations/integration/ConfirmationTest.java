@@ -1,16 +1,23 @@
 package pl.com.bottega.docflowjee.confirmations.integration;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.client.AutoConfigureWebClient;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.web.reactive.server.WebTestClient;
+import org.springframework.web.reactive.function.client.WebClient;
 import pl.com.bottega.docflowjee.confirmations.adapters.db.MongoConfirmationRepository;
+import pl.com.bottega.docflowjee.confirmations.adapters.rest.ConfirmationRequest;
+import pl.com.bottega.docflowjee.confirmations.domain.ConfirmationRepository;
 import pl.com.bottega.docflowjee.confirmations.domain.EmployeesInDepartments;
 import pl.com.bottega.docflowjee.docflow.events.DocumentPublishedEvent;
+import reactor.core.publisher.Mono;
 
 import java.time.Instant;
 import java.util.List;
@@ -24,9 +31,10 @@ import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
 
-@SpringBootTest
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
 @RunWith(SpringRunner.class)
 @AutoConfigureWireMock(port = 9191)
+@AutoConfigureWebClient
 public class ConfirmationTest {
 
     @Autowired
@@ -36,7 +44,13 @@ public class ConfirmationTest {
     private MongoConfirmationRepository mongoConfirmationRepository;
 
     @Autowired
+    private ConfirmationRepository confirmationRepository;
+
+    @Autowired
     private ObjectMapper objectMapper;
+
+    @Autowired
+    private WebTestClient webTestClient;
 
     private UUID documentId = UUID.randomUUID();
     private Set<Long> departmentIds = Set.of(1L, 2L, 3L);
@@ -60,6 +74,33 @@ public class ConfirmationTest {
         await().atMost(5, TimeUnit.SECONDS).untilAsserted(() -> {
             assertThat(mongoConfirmationRepository.count().block()).isEqualTo(6);
         });
+    }
+
+    @Test
+    public void confirmsDocument() throws JsonProcessingException {
+        // given
+        var event = new DocumentPublishedEvent(documentId, Instant.now(), departmentIds, version);
+        stubFor(get("/employee-departments")
+            .willReturn(aResponse()
+                .withHeader("Content-type", "application/json")
+                .withBody(objectMapper.writeValueAsString(new EmployeesInDepartments(employees)))
+            ));
+        jmsTemplate.convertAndSend("docflow/DocumentPublishedEvent", event);
+        await().untilAsserted(() -> {
+            assertThat(mongoConfirmationRepository.count().block()).isEqualTo(6);
+        });
+
+        // when
+        webTestClient.put()
+            .uri("/confirmations")
+            .body(Mono.just(new ConfirmationRequest(employees.get(0), documentId)), ConfirmationRequest.class)
+            .exchange()
+            .expectStatus()
+            .is2xxSuccessful();
+
+        // then
+        var confirmation = confirmationRepository.findFor(documentId, employees.get(0));
+        assertThat(confirmation.block().isConfirmed()).isTrue();
     }
 
 }
