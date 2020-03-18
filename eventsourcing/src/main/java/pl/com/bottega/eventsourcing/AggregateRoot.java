@@ -21,19 +21,19 @@ public abstract class AggregateRoot {
         return Collections.unmodifiableList(changes);
     }
 
-    public void markChangesCommited() {
+    void markChangesCommited() {
         this.changes.clear();
     }
 
-    public void loadFromHistory(List<Event> history) {
+    void loadFromHistory(List<Event> history) {
         history.forEach(it -> applyChange(it, false));
     }
 
-    protected void applyChange(Event event) {
+    protected void emit(Event event) {
         applyChange(event, true);
     }
 
-    protected void applyChange(Event event, boolean isNew) {
+    private void applyChange(Event event, boolean isNew) {
         dispatch(event);
         if (isNew) {
             changes.add(event);
@@ -41,10 +41,10 @@ public abstract class AggregateRoot {
     }
 
     protected void eventNotSupported(Event event) {
-        throw new IllegalArgumentException(String.format("Event {} is not supported", event));
+        throw new IllegalArgumentException(String.format("Event %s is not supported", event));
     }
 
-    protected void dispatch(Event event) {
+    private void dispatch(Event event) {
         try {
             Method applyMethod = getClass().getDeclaredMethod("apply", event.getClass());
             applyMethod.setAccessible(true);
