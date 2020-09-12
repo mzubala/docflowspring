@@ -27,5 +27,4 @@ public class DepartmentController {
         var id = departmentService.create(command);
         return new ResourceCreatedResponse(id);
     }
-
 }
