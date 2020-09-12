@@ -9,6 +9,8 @@ import pl.com.bottega.docflowjee.hr.controller.request.CreateDepartmentRequest;
 import pl.com.bottega.docflowjee.hr.controller.response.ResourceCreatedResponse;
 import pl.com.bottega.docflowjee.hr.model.Department;
 import pl.com.bottega.docflowjee.hr.model.repository.DepartmentRepository;
+import pl.com.bottega.docflowjee.hr.services.CreateDepartmentCommand;
+import pl.com.bottega.docflowjee.hr.services.DepartmentService;
 
 import javax.transaction.Transactional;
 
@@ -17,15 +19,13 @@ import javax.transaction.Transactional;
 public class DepartmentController {
 
     @Autowired
-    private DepartmentRepository departmentRepository;
+    private DepartmentService departmentService;
 
     @PostMapping
-    @Transactional
     public ResourceCreatedResponse create(@RequestBody CreateDepartmentRequest createDepartmentRequest) {
-        var department = new Department();
-        department.setName(createDepartmentRequest.getName());
-        department = departmentRepository.save(department);
-        return new ResourceCreatedResponse(department.getId());
+        var command = new CreateDepartmentCommand(createDepartmentRequest.getName());
+        var id = departmentService.create(command);
+        return new ResourceCreatedResponse(id);
     }
 
 }
