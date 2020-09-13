@@ -13,7 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit4.SpringRunner;
 import pl.com.bottega.docflowjee.hr.controller.error.ValidationErrors;
 import pl.com.bottega.docflowjee.hr.controller.request.CreateDepartmentRequest;
-import pl.com.bottega.docflowjee.hr.controller.response.EmployeeDetails;
+import pl.com.bottega.docflowjee.hr.services.EmployeeDetails;
 import pl.com.bottega.docflowjee.hr.controller.response.ResourceCreatedResponse;
 
 import java.util.List;
