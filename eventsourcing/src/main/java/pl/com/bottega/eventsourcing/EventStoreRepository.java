@@ -5,6 +5,7 @@ import io.vavr.control.Try;
 
 import java.lang.reflect.Constructor;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Consumer;
 
@@ -21,14 +22,18 @@ public class EventStoreRepository<A extends AggregateRoot> implements Repository
 
     @Override
     public A get(UUID id) {
+        return getOptionally(id).orElseThrow(() -> new AggregateNotFoundException(id));
+    }
+
+    @Override
+    public Optional<A> getOptionally(UUID id) {
         List<Event> events = eventStore.getEventsForAggregate(id);
         if (events.size() == 0) {
-            throw new AggregateNotFoundException(id);
+            return Optional.empty();
         }
         A aggregateRoot = instantiateAggregate();
         aggregateRoot.loadFromHistory(events);
-        postLoadCallback.peek(it -> it.accept(aggregateRoot));
-        return aggregateRoot;
+        postLoadCallback.peek(it -> it.accept(aggregateRoot));        return Optional.of(aggregateRoot);
     }
 
     private A instantiateAggregate() {

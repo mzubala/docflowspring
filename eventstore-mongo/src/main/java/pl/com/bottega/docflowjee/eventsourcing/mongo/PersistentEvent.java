@@ -12,7 +12,7 @@ import java.util.UUID;
 class PersistentEvent {
 
     @Id
-    private String id;
+    String id;
 
     Event payload;
 
