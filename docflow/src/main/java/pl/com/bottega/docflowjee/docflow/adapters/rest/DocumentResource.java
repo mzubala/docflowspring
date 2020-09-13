@@ -41,37 +41,37 @@ public class DocumentResource {
     }
 
     @PutMapping("/verification")
-    public void sendToVerification(@PathVariable UUID id,  @RequestBody DocumentRequest request) {
+    public void sendToVerification(@PathVariable UUID id,  @RequestBody @Validated DocumentRequest request) {
 		var cmd = new PassToVerificationCommand(id, request.employeeId, request.aggregateVersion);
 		documentVerification.passToVerification(cmd);
     }
 
     @PutMapping("/verification/positive")
-    public void verify(@PathVariable UUID id,  @RequestBody DocumentRequest request) {
+    public void verify(@PathVariable UUID id,  @RequestBody @Validated DocumentRequest request) {
 		var cmd = new VerifyDocumentCommand(id, request.employeeId, request.aggregateVersion);
         documentVerification.verify(cmd);
     }
 
     @PutMapping("/verification/negative")
-    public void reject(@PathVariable UUID id,  @RequestBody RejectDocumentRequest request) {
+    public void reject(@PathVariable UUID id,  @RequestBody @Validated RejectDocumentRequest request) {
 		var cmd = new RejectDocumentCommand(id, request.employeeId, request.reason, request.aggregateVersion);
         documentVerification.reject(cmd);
     }
 
     @PutMapping("/publication")
-    public void publish(@PathVariable UUID id,  @RequestBody PublishDocumentRequest request) {
+    public void publish(@PathVariable UUID id,  @RequestBody @Validated PublishDocumentRequest request) {
 		var cmd = new PublishDocumentCommand(id, request.employeeId, request.departmentIds, true, request.aggregateVersion);
         publication.publish(cmd);
     }
 
     @PutMapping("/new-version")
-    public void createNewVersion(@PathVariable UUID id,  @RequestBody DocumentRequest request) {
+    public void createNewVersion(@PathVariable UUID id,  @RequestBody @Validated DocumentRequest request) {
 		var cmd = new CreateNewDocumentVersionCommand(id, request.employeeId, request.aggregateVersion);
         documentPreparation.createNewVersion(cmd);
     }
 
     @PutMapping("/archivisation")
-    public void archive(@PathVariable UUID id,  @RequestBody DocumentRequest request) {
+    public void archive(@PathVariable UUID id,  @RequestBody @Validated DocumentRequest request) {
 		var cmd = new ArchiveDocumentCommand(id, request.employeeId, request.aggregateVersion);
         documentPreparation.archive(cmd);
     }
