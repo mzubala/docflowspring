@@ -27,5 +27,4 @@ public class DepartmentController {
         department = departmentRepository.save(department);
         return new ResourceCreatedResponse(department.getId());
     }
-
 }
