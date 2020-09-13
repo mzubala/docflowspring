@@ -21,6 +21,7 @@ import pl.com.bottega.docflowjee.docflow.events.NewDocumentVersionCreatedEvent;
 import java.util.Set;
 import java.util.UUID;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
@@ -65,6 +66,18 @@ public class DocflowTest {
             DocumentPublishedEvent.class
         );
     }
+
+    @Test
+	public void creatingDocumentIsIdempotent() {
+		// given
+		client.create(docId, new CreateDocumentRequest(empId));
+		// when
+		client.create(docId, new CreateDocumentRequest(empId));
+		// then
+		fakeEventPublisher.assertEventsWerePublishedInOrder(
+				DocumentCreatedEvent.class
+		);
+	}
 
     @Test
     public void supportsArchiving() {

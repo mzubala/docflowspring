@@ -1,6 +1,7 @@
 package pl.com.bottega.docflowjee.docflow.integration;
 
 import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.http.HttpEntity;
 import pl.com.bottega.docflowjee.docflow.adapters.rest.CreateDocumentRequest;
 import pl.com.bottega.docflowjee.docflow.adapters.rest.DocumentRequest;
 import pl.com.bottega.docflowjee.docflow.adapters.rest.PublishDocumentRequest;
@@ -10,6 +11,7 @@ import pl.com.bottega.docflowjee.docflow.adapters.rest.UpdateDocumentRequest;
 import java.util.UUID;
 
 import static org.assertj.core.api.Java6Assertions.assertThat;
+import static org.springframework.http.HttpMethod.PUT;
 import static org.springframework.http.HttpStatus.OK;
 
 public class DocflowClient {
@@ -30,32 +32,32 @@ public class DocflowClient {
     }
 
     public void passToVerification(UUID id, DocumentRequest request) {
-        var response = this.restTemplate.postForEntity("/documents/{id}/verification", request, Void.class, id.toString());
+        var response = this.restTemplate.exchange("/documents/{id}/verification", PUT, new HttpEntity<>(request), Void.class, id.toString());
         assertThat(response.getStatusCode()).isEqualTo(OK);
     }
 
     public void verify(UUID id, DocumentRequest request) {
-        var response = this.restTemplate.postForEntity("/documents/{id}/verification/positive", request, Void.class, id.toString());
+		var response = this.restTemplate.exchange("/documents/{id}/verification/positive", PUT, new HttpEntity<>(request), Void.class, id.toString());
         assertThat(response.getStatusCode()).isEqualTo(OK);
     }
 
     public void reject(UUID id, RejectDocumentRequest request) {
-        var response = this.restTemplate.postForEntity("/documents/{id}/verification/negative", request, Void.class, id.toString());
+		var response = this.restTemplate.exchange("/documents/{id}/verification/negative", PUT, new HttpEntity<>(request), Void.class, id.toString());
         assertThat(response.getStatusCode()).isEqualTo(OK);
     }
 
     public void publish(UUID id, PublishDocumentRequest request) {
-        var response = this.restTemplate.postForEntity("/documents/{id}/publication", request, Void.class, id.toString());
+		var response = this.restTemplate.exchange("/documents/{id}/publication", PUT, new HttpEntity<>(request), Void.class, id.toString());
         assertThat(response.getStatusCode()).isEqualTo(OK);
     }
 
     public void createNewVersion(UUID id, DocumentRequest request) {
-        var response = this.restTemplate.postForEntity("/documents/{id}/new-version", request, Void.class, id.toString());
+		var response = this.restTemplate.exchange("/documents/{id}/new-version", PUT, new HttpEntity<>(request), Void.class, id.toString());
         assertThat(response.getStatusCode()).isEqualTo(OK);
     }
 
     public void archive(UUID id, DocumentRequest request) {
-        var response = this.restTemplate.postForEntity("/documents/{id}/archivisation", request, Void.class, id.toString());
+		var response = this.restTemplate.exchange("/documents/{id}/archivisation", PUT, new HttpEntity<>(request), Void.class, id.toString());
         assertThat(response.getStatusCode()).isEqualTo(OK);
     }
 }
