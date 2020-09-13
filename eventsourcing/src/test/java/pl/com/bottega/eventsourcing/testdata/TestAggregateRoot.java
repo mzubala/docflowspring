@@ -12,14 +12,14 @@ public class TestAggregateRoot extends AggregateRoot {
     TestAggregateRoot() {}
 
     public TestAggregateRoot(UUID id, Clock clock) {
-        applyChange(new TestAggregateCreatedEvent(id, clock.instant()));
+        emmit(new TestAggregateCreatedEvent(id, clock.instant()));
     }
 
     public void changeState(String newState, Clock clock) {
         if(newState == null || newState.equals(testValue)) {
             throw new IllegalArgumentException();
         }
-        applyChange(new TestValueChangedEvent(this.id, clock.instant(), newState));
+        emmit(new TestValueChangedEvent(this.id, clock.instant(), newState));
     }
 
     private void apply(TestAggregateCreatedEvent event) {
