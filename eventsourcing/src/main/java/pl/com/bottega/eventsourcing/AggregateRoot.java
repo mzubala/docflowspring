@@ -29,7 +29,7 @@ public abstract class AggregateRoot {
         history.forEach(it -> applyChange(it, false));
     }
 
-    protected void emmit(Event event) {
+    protected void emit(Event event) {
         applyChange(event, true);
     }
 
