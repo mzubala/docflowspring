@@ -43,7 +43,7 @@ public class Document extends AggregateRoot {
 
     public Document(CreateDocumentCommand cmd, Clock clock) {
         this.clock = clock;
-        applyChange(new DocumentCreatedEvent(cmd.getDocumentId(), clock.instant(), cmd.getEmployeeId()));
+        emit(new DocumentCreatedEvent(cmd.getDocumentId(), clock.instant(), cmd.getEmployeeId()));
     }
 
     public void update(UpdateDocumentCommand cmd) {
@@ -51,7 +51,7 @@ public class Document extends AggregateRoot {
         if(StringUtils.equals(title, cmd.getTitle()) && StringUtils.equals(content, cmd.getContent())) {
             return;
         }
-        applyChange(new DocumentUpdatedEvent(id, cmd.getEmployeeId(), clock.instant(), cmd.getTitle(), cmd.getContent(), version));
+        emit(new DocumentUpdatedEvent(id, cmd.getEmployeeId(), clock.instant(), cmd.getTitle(), cmd.getContent(), version));
     }
 
     public void passToVerification(PassToVerificationCommand cmd) {
@@ -65,7 +65,7 @@ public class Document extends AggregateRoot {
         if (isEmpty(content)) {
             throw new IllegalDocumentOperationException("content cannot be empty when passing to verification");
         }
-        applyChange(new DocumentPassedToVerification(id, clock.instant(), version));
+        emit(new DocumentPassedToVerification(id, clock.instant(), version));
     }
 
     public void verify(VerifyDocumentCommand cmd) {
@@ -76,7 +76,7 @@ public class Document extends AggregateRoot {
         if(this.editors.contains(cmd.getEmployeeId())) {
             throw new IllegalDocumentOperationException("Editors cannot verify document");
         }
-        applyChange(new DocumentVerifiedEvent(id, clock.instant(), version));
+        emit(new DocumentVerifiedEvent(id, clock.instant(), version));
     }
 
     public void reject(RejectDocumentCommand cmd) {
@@ -84,21 +84,21 @@ public class Document extends AggregateRoot {
             return;
         }
         status.ensureOpPermitted(REJECT);
-        applyChange(new DocumentRejectedEvent(id, clock.instant(), cmd.getReason(), version));
+        emit(new DocumentRejectedEvent(id, clock.instant(), cmd.getReason(), version));
     }
 
     public void publish(PublishDocumentCommand cmd) {
         status.ensureOpPermitted(PUBLISH);
-        Set<Long> newDepartments = newDepartments(cmd);
-        if(newDepartments.isEmpty()) {
-            return;
-        }
-        applyChange(new DocumentPublishedEvent(id, clock.instant(), newDepartments, version));
+		Set<Long> newDepartments = newDepartments(cmd);
+		if(newDepartments.isEmpty()) {
+			return;
+		}
+        emit(new DocumentPublishedEvent(id, clock.instant(), newDepartments(cmd), version));
     }
 
     public void createNewVersion(CreateNewDocumentVersionCommand cmd) {
         status.ensureOpPermitted(CREATE_NEW_VERSION);
-        applyChange(new NewDocumentVersionCreatedEvent(id, clock.instant(), version + 1));
+        emit(new NewDocumentVersionCreatedEvent(id, clock.instant(), version + 1));
     }
 
     public void archive(ArchiveDocumentCommand cmd) {
@@ -106,7 +106,7 @@ public class Document extends AggregateRoot {
             return;
         }
         status.ensureOpPermitted(ARCHIVE);
-        applyChange(new DocumentArchivedEvent(id, clock.instant(), version));
+        emit(new DocumentArchivedEvent(id, clock.instant(), version));
     }
 
     public void setClock(Clock clock) {
