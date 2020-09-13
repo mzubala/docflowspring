@@ -21,7 +21,7 @@ public class EventStoreRepositoryTest {
     private final EventPublisher eventPublisher = mock(EventPublisher.class);
     private final EventStore eventStore = new InMemoryEventStore(eventPublisher);
     private final EventStoreRepository<TestAggregateRoot> sut = new EventStoreRepository<>(eventStore, TestAggregateRoot.class);
-    private Clock clock = Clock.fixed(Instant.now(), ZoneId.systemDefault());
+    private final Clock clock = Clock.fixed(Instant.now(), ZoneId.systemDefault());
     private final UUID id = UUID.randomUUID();
 
     @Test
@@ -82,7 +82,7 @@ public class EventStoreRepositoryTest {
     }
 
     @Test
-    public void notifiesPostLoadCallbacl() {
+    public void notifiesPostLoadCallback() {
         TestAggregateRoot agg = new TestAggregateRoot(id, clock);
         sut.save(agg, -1L);
         Consumer<TestAggregateRoot> callback = mock(Consumer.class);

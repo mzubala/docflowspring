@@ -29,7 +29,7 @@ public abstract class AggregateRoot {
         history.forEach(it -> applyChange(it, false));
     }
 
-    protected void applyChange(Event event) {
+    protected void emmit(Event event) {
         applyChange(event, true);
     }
 
@@ -38,10 +38,6 @@ public abstract class AggregateRoot {
         if (isNew) {
             changes.add(event);
         }
-    }
-
-    protected void eventNotSupported(Event event) {
-        throw new IllegalArgumentException(String.format("Event {} is not supported", event));
     }
 
     protected void dispatch(Event event) {
@@ -57,9 +53,12 @@ public abstract class AggregateRoot {
         }
     }
 
+	protected void eventNotSupported(Event event) {
+		throw new IllegalArgumentException(String.format("Event {} is not supported", event));
+	}
+
     private IllegalArgumentException noApplyMethodError(Event event, NoSuchMethodException e) {
         return new IllegalArgumentException(String.format("No method void apply(%s event) found in the aggregate %s",
             event.getClass().getName(), getClass().getName()), e);
     }
-
 }
