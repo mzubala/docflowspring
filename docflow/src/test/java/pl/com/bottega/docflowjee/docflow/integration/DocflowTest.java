@@ -69,6 +69,18 @@ public class DocflowTest {
     }
 
     @Test
+	public void creatingDocumentIsIdempotent() {
+		// given
+		client.create(docId, new CreateDocumentRequest(empId));
+		// when
+		client.create(docId, new CreateDocumentRequest(empId));
+		// then
+		fakeEventPublisher.assertEventsWerePublishedInOrder(
+				DocumentCreatedEvent.class
+		);
+	}
+
+    @Test
     public void supportsArchiving() {
         // when
         long ver = 0;
