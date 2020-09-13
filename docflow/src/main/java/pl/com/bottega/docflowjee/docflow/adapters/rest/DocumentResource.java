@@ -10,14 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 import pl.com.bottega.docflowjee.docflow.DocumentPreparation;
 import pl.com.bottega.docflowjee.docflow.DocumentPublication;
 import pl.com.bottega.docflowjee.docflow.DocumentVerification;
-import pl.com.bottega.docflowjee.docflow.commands.ArchiveDocumentCommand;
-import pl.com.bottega.docflowjee.docflow.commands.CreateDocumentCommand;
-import pl.com.bottega.docflowjee.docflow.commands.CreateNewDocumentVersionCommand;
-import pl.com.bottega.docflowjee.docflow.commands.PassToVerificationCommand;
-import pl.com.bottega.docflowjee.docflow.commands.PublishDocumentCommand;
-import pl.com.bottega.docflowjee.docflow.commands.RejectDocumentCommand;
-import pl.com.bottega.docflowjee.docflow.commands.UpdateDocumentCommand;
-import pl.com.bottega.docflowjee.docflow.commands.VerifyDocumentCommand;
+import pl.com.bottega.docflowjee.docflow.commands.*;
 
 import java.util.UUID;
 
@@ -47,39 +40,39 @@ public class DocumentResource {
         documentPreparation.update(cmd);
     }
 
-    @PostMapping("/verification")
-    public void sendToVerification(@PathVariable UUID id,  @RequestBody @Validated DocumentRequest request) {
-        var cmd = new PassToVerificationCommand(id, request.employeeId, request.aggregateVersion);
-        documentVerification.passToVerification(cmd);
+    @PutMapping("/verification")
+    public void sendToVerification(@PathVariable UUID id,  @RequestBody DocumentRequest request) {
+		var cmd = new PassToVerificationCommand(id, request.employeeId, request.aggregateVersion);
+		documentVerification.passToVerification(cmd);
     }
 
-    @PostMapping("/verification/positive")
-    public void verify(@PathVariable UUID id,  @RequestBody @Validated DocumentRequest request) {
-        var cmd = new VerifyDocumentCommand(id, request.employeeId, request.aggregateVersion);
+    @PutMapping("/verification/positive")
+    public void verify(@PathVariable UUID id,  @RequestBody DocumentRequest request) {
+		var cmd = new VerifyDocumentCommand(id, request.employeeId, request.aggregateVersion);
         documentVerification.verify(cmd);
     }
 
-    @PostMapping("/verification/negative")
-    public void reject(@PathVariable UUID id,  @RequestBody @Validated RejectDocumentRequest request) {
-        var cmd = new RejectDocumentCommand(id, request.employeeId, request.reason, request.aggregateVersion);
+    @PutMapping("/verification/negative")
+    public void reject(@PathVariable UUID id,  @RequestBody RejectDocumentRequest request) {
+		var cmd = new RejectDocumentCommand(id, request.employeeId, request.reason, request.aggregateVersion);
         documentVerification.reject(cmd);
     }
 
-    @PostMapping("/publication")
-    public void publish(@PathVariable UUID id,  @RequestBody @Validated PublishDocumentRequest request) {
-        var cmd = new PublishDocumentCommand(id, request.employeeId, request.departmentIds, true, request.aggregateVersion);
+    @PutMapping("/publication")
+    public void publish(@PathVariable UUID id,  @RequestBody PublishDocumentRequest request) {
+		var cmd = new PublishDocumentCommand(id, request.employeeId, request.departmentIds, true, request.aggregateVersion);
         publication.publish(cmd);
     }
 
-    @PostMapping("/new-version")
-    public void createNewVersion(@PathVariable UUID id,  @RequestBody @Validated DocumentRequest request) {
-        var cmd = new CreateNewDocumentVersionCommand(id, request.employeeId, request.aggregateVersion);
+    @PutMapping("/new-version")
+    public void createNewVersion(@PathVariable UUID id,  @RequestBody DocumentRequest request) {
+		var cmd = new CreateNewDocumentVersionCommand(id, request.employeeId, request.aggregateVersion);
         documentPreparation.createNewVersion(cmd);
     }
 
-    @PostMapping("/archivisation")
-    public void archive(@PathVariable UUID id,  @RequestBody @Validated DocumentRequest request) {
-        var cmd = new ArchiveDocumentCommand(id, request.employeeId, request.aggregateVersion);
+    @PutMapping("/archivisation")
+    public void archive(@PathVariable UUID id,  @RequestBody DocumentRequest request) {
+		var cmd = new ArchiveDocumentCommand(id, request.employeeId, request.aggregateVersion);
         documentPreparation.archive(cmd);
     }
 }
