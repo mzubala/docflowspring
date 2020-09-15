@@ -71,6 +71,18 @@ public class DocflowTest {
     }
 
     @Test
+	public void creatingDocumentIsIdempotent() {
+		// given
+		client.create(docId, new CreateDocumentRequest(empId));
+		// when
+		client.create(docId, new CreateDocumentRequest(empId));
+		// then
+		fakeEventPublisher.assertEventsWerePublishedInOrder(
+				DocumentCreatedEvent.class
+		);
+	}
+
+    @Test
     public void supportsArchiving() {
         // when
         long ver = 0;
@@ -139,10 +151,11 @@ public class DocflowTest {
     }
 
     @Test
-    public void shouldRespondWithHttp422WhenPassingInvalidRequests() {
+    public void shouldRespondWithHttp400WhenPassingInvalidRequests() {
         assertHttp400(() -> client.create(docId, new CreateDocumentRequest()));
         assertHttp400(() -> client.update(docId, new UpdateDocumentRequest()));
         assertHttp400(() -> client.update(docId, new UpdateDocumentRequest()));
+        assertHttp400(() -> client.update(docId, new UpdateDocumentRequest(1L, 1L, "motyla noga", "kurczę pióro")));
         assertHttp400(() -> client.passToVerification(docId, new DocumentRequest()));
         assertHttp400(() -> client.verify(docId, new DocumentRequest()));
         assertHttp400(() -> client.publish(docId, new PublishDocumentRequest()));
