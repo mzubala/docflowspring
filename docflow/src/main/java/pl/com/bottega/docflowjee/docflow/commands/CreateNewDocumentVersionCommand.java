@@ -1,4 +1,6 @@
 package pl.com.bottega.docflowjee.docflow.commands;
 
-public class CreateNewDocumentVersionCommand {
+import pl.com.bottega.eventsourcing.Command;
+
+public class CreateNewDocumentVersionCommand implements Command {
 }

@@ -1,4 +1,6 @@
 package pl.com.bottega.docflowjee.docflow.commands;
 
-public class PassToVerificationCommand {
+import pl.com.bottega.eventsourcing.Command;
+
+public class PassToVerificationCommand implements Command {
 }
