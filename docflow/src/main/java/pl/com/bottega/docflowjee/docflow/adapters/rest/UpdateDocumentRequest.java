@@ -1,16 +1,21 @@
 package pl.com.bottega.docflowjee.docflow.adapters.rest;
 
+import pl.com.bottega.docflowjee.docflow.adapters.rest.validation.ValidateObscenity;
+
 public class UpdateDocumentRequest extends DocumentRequest {
 
-    public String title;
-    public String content;
+	@ValidateObscenity
+	public String title;
 
-    public UpdateDocumentRequest(Long employeeId, Long aggregateVersion, String title, String content) {
-        super(employeeId, aggregateVersion);
-        this.title = title;
-        this.content = content;
-    }
+	@ValidateObscenity
+	public String content;
 
-    public UpdateDocumentRequest() {
-    }
+	public UpdateDocumentRequest(Long employeeId, Long aggregateVersion, String title, String content) {
+		super(employeeId, aggregateVersion);
+		this.title = title;
+		this.content = content;
+	}
+
+	public UpdateDocumentRequest() {
+	}
 }

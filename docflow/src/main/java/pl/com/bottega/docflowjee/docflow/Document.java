@@ -40,151 +40,151 @@ import static pl.com.bottega.docflowjee.docflow.DocumentStatus.WAITING_VERIFICAT
 
 public class Document extends AggregateRoot {
 
-    Document() {}
+	Document() {}
 
-    public Document(CreateDocumentCommand cmd, Clock clock, EmployeePermissionsPolicy employeePermissionsPolicy) {
-        this.clock = clock;
-        this.employeePermissionsPolicy = employeePermissionsPolicy;
-        employeePermissionsPolicy.checkPermission(cmd.getEmployeeId(), CREATE);
-        applyChange(new DocumentCreatedEvent(cmd.getDocumentId(), clock.instant(), cmd.getEmployeeId()));
-    }
+	public Document(CreateDocumentCommand cmd, Clock clock, EmployeePermissionsPolicy employeePermissionsPolicy) {
+		this.clock = clock;
+		this.employeePermissionsPolicy = employeePermissionsPolicy;
+		employeePermissionsPolicy.checkPermission(cmd.getEmployeeId(), CREATE);
+		emit(new DocumentCreatedEvent(cmd.getDocumentId(), clock.instant(), cmd.getEmployeeId()));
+	}
 
-    public void update(UpdateDocumentCommand cmd) {
-        status.ensureOpPermitted(UPDATE);
-        employeePermissionsPolicy.checkPermission(cmd.getEmployeeId(), UPDATE);
-        if(StringUtils.equals(title, cmd.getTitle()) && StringUtils.equals(content, cmd.getContent())) {
-            return;
-        }
-        applyChange(new DocumentUpdatedEvent(id, cmd.getEmployeeId(), clock.instant(), cmd.getTitle(), cmd.getContent(), version));
-    }
+	public void update(UpdateDocumentCommand cmd) {
+		status.ensureOpPermitted(UPDATE);
+		employeePermissionsPolicy.checkPermission(cmd.getEmployeeId(), UPDATE);
+		if(StringUtils.equals(title, cmd.getTitle()) && StringUtils.equals(content, cmd.getContent())) {
+			return;
+		}
+		emit(new DocumentUpdatedEvent(id, cmd.getEmployeeId(), clock.instant(), cmd.getTitle(), cmd.getContent(), version));
+	}
 
-    public void passToVerification(PassToVerificationCommand cmd) {
-        if(status == WAITING_VERIFICATION) {
-            return;
-        }
-        status.ensureOpPermitted(PASS_TO_VERIFICATION);
-        employeePermissionsPolicy.checkPermission(cmd.getEmployeeId(), PASS_TO_VERIFICATION);
-        if(isEmpty(title)) {
-            throw new IllegalDocumentOperationException("title cannot be empty when passing to verification");
-        }
-        if (isEmpty(content)) {
-            throw new IllegalDocumentOperationException("content cannot be empty when passing to verification");
-        }
-        applyChange(new DocumentPassedToVerification(id, clock.instant(), version));
-    }
+	public void passToVerification(PassToVerificationCommand cmd) {
+		if(status == WAITING_VERIFICATION) {
+			return;
+		}
+		status.ensureOpPermitted(PASS_TO_VERIFICATION);
+		employeePermissionsPolicy.checkPermission(cmd.getEmployeeId(), PASS_TO_VERIFICATION);
+		if(isEmpty(title)) {
+			throw new IllegalDocumentOperationException("title cannot be empty when passing to verification");
+		}
+		if (isEmpty(content)) {
+			throw new IllegalDocumentOperationException("content cannot be empty when passing to verification");
+		}
+		emit(new DocumentPassedToVerification(id, clock.instant(), version));
+	}
 
-    public void verify(VerifyDocumentCommand cmd) {
-        if(status == VERIFIED) {
-            return;
-        }
-        status.ensureOpPermitted(VERIFY);
-        employeePermissionsPolicy.checkPermission(cmd.getEmployeeId(), VERIFY);
-        if(this.editors.contains(cmd.getEmployeeId())) {
-            throw new IllegalDocumentOperationException("Editors cannot verify document");
-        }
-        applyChange(new DocumentVerifiedEvent(id, clock.instant(), version));
-    }
+	public void verify(VerifyDocumentCommand cmd) {
+		if(status == VERIFIED) {
+			return;
+		}
+		status.ensureOpPermitted(VERIFY);
+		employeePermissionsPolicy.checkPermission(cmd.getEmployeeId(), VERIFY);
+		if(this.editors.contains(cmd.getEmployeeId())) {
+			throw new IllegalDocumentOperationException("Editors cannot verify document");
+		}
+		emit(new DocumentVerifiedEvent(id, clock.instant(), version));
+	}
 
-    public void reject(RejectDocumentCommand cmd) {
-        if(status == DRAFT) {
-            return;
-        }
-        employeePermissionsPolicy.checkPermission(cmd.getEmployeeId(), REJECT);
-        status.ensureOpPermitted(REJECT);
-        applyChange(new DocumentRejectedEvent(id, clock.instant(), cmd.getReason(), version));
-    }
+	public void reject(RejectDocumentCommand cmd) {
+		if(status == DRAFT) {
+			return;
+		}
+		employeePermissionsPolicy.checkPermission(cmd.getEmployeeId(), REJECT);
+		status.ensureOpPermitted(REJECT);
+		emit(new DocumentRejectedEvent(id, clock.instant(), cmd.getReason(), version));
+	}
 
-    public void publish(PublishDocumentCommand cmd) {
-        status.ensureOpPermitted(PUBLISH);
-        employeePermissionsPolicy.checkPermission(cmd.getEmployeeId(), PUBLISH);
-        Set<Long> newDepartments = newDepartments(cmd);
-        if(newDepartments.isEmpty()) {
-            return;
-        }
-        applyChange(new DocumentPublishedEvent(id, clock.instant(), newDepartments, version));
-    }
+	public void publish(PublishDocumentCommand cmd) {
+		status.ensureOpPermitted(PUBLISH);
+		employeePermissionsPolicy.checkPermission(cmd.getEmployeeId(), PUBLISH);
+		Set<Long> newDepartments = newDepartments(cmd);
+		if(newDepartments.isEmpty()) {
+			return;
+		}
+		emit(new DocumentPublishedEvent(id, clock.instant(), newDepartments, version));
+	}
 
-    public void createNewVersion(CreateNewDocumentVersionCommand cmd) {
-        status.ensureOpPermitted(CREATE_NEW_VERSION);
-        employeePermissionsPolicy.checkPermission(cmd.getEmployeeId(), CREATE_NEW_VERSION);
-        applyChange(new NewDocumentVersionCreatedEvent(id, clock.instant(), version + 1));
-    }
+	public void createNewVersion(CreateNewDocumentVersionCommand cmd) {
+		status.ensureOpPermitted(CREATE_NEW_VERSION);
+		employeePermissionsPolicy.checkPermission(cmd.getEmployeeId(), CREATE_NEW_VERSION);
+		emit(new NewDocumentVersionCreatedEvent(id, clock.instant(), version + 1));
+	}
 
-    public void archive(ArchiveDocumentCommand cmd) {
-        employeePermissionsPolicy.checkPermission(cmd.getEmployeeId(), ARCHIVE);
-        if(status == ARCHIVED) {
-            return;
-        }
-        status.ensureOpPermitted(ARCHIVE);
-        applyChange(new DocumentArchivedEvent(id, clock.instant(), version));
-    }
+	public void archive(ArchiveDocumentCommand cmd) {
+		employeePermissionsPolicy.checkPermission(cmd.getEmployeeId(), ARCHIVE);
+		if(status == ARCHIVED) {
+			return;
+		}
+		status.ensureOpPermitted(ARCHIVE);
+		emit(new DocumentArchivedEvent(id, clock.instant(), version));
+	}
 
-    public void setClock(Clock clock) {
-        this.clock = clock;
-    }
+	public void setClock(Clock clock) {
+		this.clock = clock;
+	}
 
-    public void setEmployeePermissionsPolicy(EmployeePermissionsPolicy employeePermissionsPolicy) {
-        this.employeePermissionsPolicy = employeePermissionsPolicy;
-    }
+	public void setEmployeePermissionsPolicy(EmployeePermissionsPolicy employeePermissionsPolicy) {
+		this.employeePermissionsPolicy = employeePermissionsPolicy;
+	}
 
-    private Clock clock;
-    private EmployeePermissionsPolicy employeePermissionsPolicy;
-    private DocumentStatus status;
-    private Integer version;
-    private Set<Long> previousVersionPublishedFor = new HashSet<>();
-    private Set<Long> editors = new HashSet<>();
-    private Set<Long> publishedFor = new HashSet<>();
-    private String title;
-    private String content;
+	private Clock clock;
+	private EmployeePermissionsPolicy employeePermissionsPolicy;
+	private DocumentStatus status;
+	private Integer version;
+	private Set<Long> previousVersionPublishedFor = new HashSet<>();
+	private Set<Long> editors = new HashSet<>();
+	private Set<Long> publishedFor = new HashSet<>();
+	private String title;
+	private String content;
 
-    private void apply(DocumentCreatedEvent event) {
-        this.id = event.getAggregateId();
-        this.status = DRAFT;
-        this.version = 1;
-        this.editors.add(event.getEmployeeId());
-    }
+	private void apply(DocumentCreatedEvent event) {
+		this.id = event.getAggregateId();
+		this.status = DRAFT;
+		this.version = 1;
+		this.editors.add(event.getEmployeeId());
+	}
 
-    private void apply(DocumentUpdatedEvent event) {
-        this.status = DRAFT;
-        this.title = event.getTitle();
-        this.content = event.getContent();
-        this.editors.add(event.getEmployeeId());
-    }
+	private void apply(DocumentUpdatedEvent event) {
+		this.status = DRAFT;
+		this.title = event.getTitle();
+		this.content = event.getContent();
+		this.editors.add(event.getEmployeeId());
+	}
 
-    private void apply(DocumentArchivedEvent event) {
-        this.status = ARCHIVED;
-    }
+	private void apply(DocumentArchivedEvent event) {
+		this.status = ARCHIVED;
+	}
 
-    private void apply(DocumentPassedToVerification event) {
-        this.status = WAITING_VERIFICATION;
-    }
+	private void apply(DocumentPassedToVerification event) {
+		this.status = WAITING_VERIFICATION;
+	}
 
-    private void apply(DocumentPublishedEvent event) {
-        this.publishedFor.addAll(event.getDepartmentIds());
-        this.status = PUBLISHED;
-    }
+	private void apply(DocumentPublishedEvent event) {
+		this.publishedFor.addAll(event.getDepartmentIds());
+		this.status = PUBLISHED;
+	}
 
-    private void apply(DocumentRejectedEvent event) {
-        this.status = DRAFT;
-    }
+	private void apply(DocumentRejectedEvent event) {
+		this.status = DRAFT;
+	}
 
-    private void apply(DocumentVerifiedEvent event) {
-        this.status = VERIFIED;
-    }
+	private void apply(DocumentVerifiedEvent event) {
+		this.status = VERIFIED;
+	}
 
-    private void apply(NewDocumentVersionCreatedEvent event) {
-        this.status = DRAFT;
-        this.version = event.getVersion();
-        this.previousVersionPublishedFor = publishedFor;
-        this.publishedFor = new HashSet<>();
-    }
+	private void apply(NewDocumentVersionCreatedEvent event) {
+		this.status = DRAFT;
+		this.version = event.getVersion();
+		this.previousVersionPublishedFor = publishedFor;
+		this.publishedFor = new HashSet<>();
+	}
 
-    private Set<Long> newDepartments(PublishDocumentCommand cmd) {
-        Set<Long> newDepartments = new HashSet<>(cmd.getDepartmentIds());
-        if(cmd.isIncludeDepartmentsFromPreviousVersion()) {
-            newDepartments.addAll(previousVersionPublishedFor);
-        }
-        newDepartments.removeAll(publishedFor);
-        return newDepartments;
-    }
+	private Set<Long> newDepartments(PublishDocumentCommand cmd) {
+		Set<Long> newDepartments = new HashSet<>(cmd.getDepartmentIds());
+		if(cmd.isIncludeDepartmentsFromPreviousVersion()) {
+			newDepartments.addAll(previousVersionPublishedFor);
+		}
+		newDepartments.removeAll(publishedFor);
+		return newDepartments;
+	}
 }

@@ -12,16 +12,16 @@ import org.springframework.core.env.Environment;
 @Configuration
 public class IntegrationTestConfig {
 
-    @Bean
-    public TestRestTemplate restTemplate(Environment env) {
-        var builder = new RestTemplateBuilder();
-        builder = builder.uriTemplateHandler(new LocalHostUriTemplateHandler(env));
-        return new TestRestTemplate(builder);
-    }
+	@Bean
+	public TestRestTemplate restTemplate(Environment env) {
+		var builder = new RestTemplateBuilder();
+		builder = builder.uriTemplateHandler(new LocalHostUriTemplateHandler(env));
+		return new TestRestTemplate(builder);
+	}
 
-    @Bean
-    public DocflowClient docflowClient(TestRestTemplate restTemplate) {
-        return new DocflowClient(restTemplate);
-    }
+	@Bean
+	public DocflowClient docflowClient(TestRestTemplate restTemplate) {
+		return new DocflowClient(restTemplate);
+	}
 
 }
