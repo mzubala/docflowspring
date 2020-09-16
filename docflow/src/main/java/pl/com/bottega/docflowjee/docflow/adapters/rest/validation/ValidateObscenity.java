@@ -1,4 +1,4 @@
-package pl.com.bottega.docflowjee.docflow.commands.validation;
+package pl.com.bottega.docflowjee.docflow.adapters.rest.validation;
 
 import javax.validation.Constraint;
 import javax.validation.Payload;

@@ -4,6 +4,7 @@ import pl.com.bottega.docflowjee.docflow.commands.ArchiveDocumentCommand;
 import pl.com.bottega.docflowjee.docflow.commands.CreateDocumentCommand;
 import pl.com.bottega.docflowjee.docflow.commands.CreateNewDocumentVersionCommand;
 import pl.com.bottega.docflowjee.docflow.commands.UpdateDocumentCommand;
+
 import java.time.Clock;
 
 public class DocumentPreparation {
