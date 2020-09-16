@@ -31,6 +31,11 @@ public abstract class Event {
         this.aggregateVersion = aggregateVersion;
     }
 
+    public Event withAggregateVersion(Long aggregateVersion) {
+        this.aggregateVersion = aggregateVersion;
+        return this;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
