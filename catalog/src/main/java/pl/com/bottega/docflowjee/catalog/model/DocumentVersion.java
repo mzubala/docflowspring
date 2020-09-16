@@ -1,5 +1,6 @@
 package pl.com.bottega.docflowjee.catalog.model;
 
+import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -20,6 +21,7 @@ public class DocumentVersion {
 
     private String title;
 
+    @Column(length = 1 << 16)
     private String content;
 
     @Enumerated(EnumType.STRING)

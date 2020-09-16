@@ -1,16 +1,11 @@
 package pl.com.bottega.docflowjee.catalog.service;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 import pl.com.bottega.docflowjee.catalog.model.BasicDocumentInfo;
 import pl.com.bottega.docflowjee.catalog.model.DocumentDetails;
 import pl.com.bottega.docflowjee.catalog.model.DocumentStatus;
 import pl.com.bottega.docflowjee.catalog.model.DocumentVersion;
 import pl.com.bottega.docflowjee.catalog.repository.BasicDocumentInfoRepository;
-import pl.com.bottega.docflowjee.catalog.repository.CatalogQuery;
-import pl.com.bottega.docflowjee.catalog.repository.CatalogQuerySpecification;
 import pl.com.bottega.docflowjee.catalog.repository.DocumentDetailsRepository;
 import pl.com.bottega.docflowjee.docflow.events.DocumentArchivedEvent;
 import pl.com.bottega.docflowjee.docflow.events.DocumentCreatedEvent;
@@ -22,15 +17,14 @@ import pl.com.bottega.docflowjee.docflow.events.DocumentVerifiedEvent;
 import pl.com.bottega.docflowjee.docflow.events.NewDocumentVersionCreatedEvent;
 
 import javax.transaction.Transactional;
-import java.util.UUID;
 
 @Component
-public class CatalogService {
+public class DocflowEventsHandler {
 
     private final BasicDocumentInfoRepository basicDocumentInfoDao;
     private final DocumentDetailsRepository documentDetailsDao;
 
-    public CatalogService(BasicDocumentInfoRepository basicDocumentInfoRepository, DocumentDetailsRepository documentDetailsDao) {
+    public DocflowEventsHandler(BasicDocumentInfoRepository basicDocumentInfoRepository, DocumentDetailsRepository documentDetailsDao) {
         this.basicDocumentInfoDao = basicDocumentInfoRepository;
         this.documentDetailsDao = documentDetailsDao;
     }
@@ -61,7 +55,7 @@ public class CatalogService {
         basicDocumentInfo.setTitle(event.getTitle());
         basicDocumentInfo.setContentBrief(contentBrief(event.getContent()));
 
-        DocumentDetails documentDetails = documentDetailsDao.find(event.getAggregateId());
+        DocumentDetails documentDetails = documentDetailsDao.findByDocumentId(event.getAggregateId());
         DocumentVersion currentVersion = documentDetails.getCurrentVersion();
         currentVersion.setStatus(DocumentStatus.DRAFT);
         currentVersion.setContent(event.getContent());
@@ -84,7 +78,7 @@ public class CatalogService {
         BasicDocumentInfo basicDocumentInfo = basicDocumentInfoDao.findById(event.getAggregateId());
         basicDocumentInfo.setStatus(DocumentStatus.WAITING_VERIFICATION);
 
-        DocumentDetails documentDetails = documentDetailsDao.find(event.getAggregateId());
+        DocumentDetails documentDetails = documentDetailsDao.findByDocumentId(event.getAggregateId());
         DocumentVersion currentVersion = documentDetails.getCurrentVersion();
         currentVersion.setStatus(DocumentStatus.WAITING_VERIFICATION);
 
@@ -97,7 +91,7 @@ public class CatalogService {
         BasicDocumentInfo basicDocumentInfo = basicDocumentInfoDao.findById(event.getAggregateId());
         basicDocumentInfo.setStatus(DocumentStatus.VERIFIED);
 
-        DocumentDetails documentDetails = documentDetailsDao.find(event.getAggregateId());
+        DocumentDetails documentDetails = documentDetailsDao.findByDocumentId(event.getAggregateId());
         DocumentVersion currentVersion = documentDetails.getCurrentVersion();
         currentVersion.setStatus(DocumentStatus.VERIFIED);
 
@@ -110,7 +104,7 @@ public class CatalogService {
         BasicDocumentInfo basicDocumentInfo = basicDocumentInfoDao.findById(event.getAggregateId());
         basicDocumentInfo.setStatus(DocumentStatus.DRAFT);
 
-        DocumentDetails documentDetails = documentDetailsDao.find(event.getAggregateId());
+        DocumentDetails documentDetails = documentDetailsDao.findByDocumentId(event.getAggregateId());
         DocumentVersion currentVersion = documentDetails.getCurrentVersion();
         currentVersion.setStatus(DocumentStatus.DRAFT);
         currentVersion.setRejectionReason(event.getReason());
@@ -124,7 +118,7 @@ public class CatalogService {
         BasicDocumentInfo basicDocumentInfo = basicDocumentInfoDao.findById(event.getAggregateId());
         basicDocumentInfo.setStatus(DocumentStatus.PUBLISHED);
 
-        DocumentDetails documentDetails = documentDetailsDao.find(event.getAggregateId());
+        DocumentDetails documentDetails = documentDetailsDao.findByDocumentId(event.getAggregateId());
         DocumentVersion currentVersion = documentDetails.getCurrentVersion();
         currentVersion.setStatus(DocumentStatus.PUBLISHED);
         currentVersion.getPublishedFor().addAll(event.getDepartmentIds());
@@ -138,7 +132,7 @@ public class CatalogService {
         BasicDocumentInfo basicDocumentInfo = basicDocumentInfoDao.findById(event.getAggregateId());
         basicDocumentInfo.setStatus(DocumentStatus.ARCHIVED);
 
-        DocumentDetails documentDetails = documentDetailsDao.find(event.getAggregateId());
+        DocumentDetails documentDetails = documentDetailsDao.findByDocumentId(event.getAggregateId());
         DocumentVersion currentVersion = documentDetails.getCurrentVersion();
         currentVersion.setStatus(DocumentStatus.ARCHIVED);
 
@@ -151,7 +145,7 @@ public class CatalogService {
         BasicDocumentInfo basicDocumentInfo = basicDocumentInfoDao.findById(event.getAggregateId());
         basicDocumentInfo.setStatus(DocumentStatus.DRAFT);
 
-        DocumentDetails documentDetails = documentDetailsDao.find(event.getAggregateId());
+        DocumentDetails documentDetails = documentDetailsDao.findByDocumentId(event.getAggregateId());
         DocumentVersion currentVersion = new DocumentVersion();
         currentVersion.setDocumentVersionNumber(event.getVersion());
         currentVersion.setTitle(documentDetails.getCurrentVersion().getTitle());
@@ -163,18 +157,5 @@ public class CatalogService {
         basicDocumentInfo.setAggregateVersion(event.getAggregateVersion());
         documentDetails.setAggregateVersion(event.getAggregateVersion());
     }
-
-    public DocumentDetails getDetails(UUID documentId) {
-        return null;
-    }
-
-    public Page<BasicDocumentInfo> search(CatalogQuery query) {
-        return basicDocumentInfoDao.findAll(
-            new CatalogQuerySpecification(query),
-            Sort.by(query.sortBy),
-            PageRequest.of(query.page, query.perPage)
-        );
-    }
-
 }
 
