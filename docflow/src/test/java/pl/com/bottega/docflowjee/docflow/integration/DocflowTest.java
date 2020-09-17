@@ -30,10 +30,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.function.Supplier;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
-import static com.github.tomakehurst.wiremock.client.WireMock.get;
-import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
-import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
@@ -208,6 +205,21 @@ public class DocflowTest {
         // then
         assertThat(resp.getStatusCode()).isEqualTo(UNPROCESSABLE_ENTITY);
     }
+
+    @Test
+	public void opensCircuitBreakerWhenHrModuleFails() {
+		// given
+		gettingEmployeeDetailsFails(empId, INTERNAL_SERVER_ERROR);
+		int n = 1000;
+
+		// when
+		for(int i = 0; i<n; i++) {
+			client.create(docId, new CreateDocumentRequest(empId));
+		}
+
+		// then
+		verify(lessThan(n), getRequestedFor(urlEqualTo("/employees/" + empId)));
+	}
 
     private void assertHttp400(Supplier<ResponseEntity> sup) {
         assertThat(sup.get().getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
