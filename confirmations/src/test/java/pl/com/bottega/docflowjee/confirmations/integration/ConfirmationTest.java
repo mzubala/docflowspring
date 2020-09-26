@@ -11,7 +11,6 @@ import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.reactive.server.WebTestClient;
-import org.springframework.web.reactive.function.client.WebClient;
 import pl.com.bottega.docflowjee.confirmations.adapters.db.MongoConfirmationRepository;
 import pl.com.bottega.docflowjee.confirmations.adapters.rest.ConfirmationRequest;
 import pl.com.bottega.docflowjee.confirmations.domain.ConfirmationRepository;
@@ -87,7 +86,7 @@ public class ConfirmationTest {
             ));
         jmsTemplate.convertAndSend("docflow/DocumentPublishedEvent", event);
         await().untilAsserted(() -> {
-            assertThat(mongoConfirmationRepository.count().block()).isEqualTo(6);
+            assertThat(mongoConfirmationRepository.count().block()).isGreaterThanOrEqualTo(6);
         });
 
         // when

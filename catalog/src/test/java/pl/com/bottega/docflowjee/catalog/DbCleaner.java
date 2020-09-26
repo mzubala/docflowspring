@@ -1,7 +1,6 @@
 package pl.com.bottega.docflowjee.catalog;
 
 import org.hibernate.Session;
-import org.hibernate.metamodel.internal.EntityTypeImpl;
 import org.hibernate.persister.entity.AbstractEntityPersister;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
