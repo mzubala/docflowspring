@@ -25,6 +25,7 @@
         <module>eventstore-jpa</module>
         <module>eventstore-mongo</module>
         <module>confirmations</module>
+        <module>authorization</module>
     </modules>
 
     <build>
