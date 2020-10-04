@@ -14,3 +14,8 @@ security:
   private-key-file: docflow-authorization.jks
   key-pass: 123456
   key-alias: docflow-authorization
+
+spring.datasource.url: jdbc:h2:mem:testdb
+spring.datasource.username: sa
+spring.datasource.password:
+spring.datasource.initialization-mode: always
