@@ -9,7 +9,6 @@ import pl.com.bottega.docflowjee.hr.services.EmployeeDetails;
 import pl.com.bottega.docflowjee.hr.services.EmployeeService;
 import pl.com.bottega.docflowjee.hr.services.UpdateEmployeeCommand;
 
-import javax.transaction.Transactional;
 import javax.validation.Valid;
 
 @RestController
@@ -30,7 +29,6 @@ public class EmployeeController {
 	}
 
 	@PutMapping("/{id}")
-	@Transactional
 	public void update(@PathVariable("id") Long id, @Valid @RequestBody EmployeeRequest request) {
 		employeeService.update(new UpdateEmployeeCommand(
 				id, request.getFirstName(), request.getLastName(), request.getDepartmentIds(),
