@@ -1,0 +1,8 @@
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<body>
+<h1>Hello!</h1>
+<input type="hidden"
+       th:name="${_csrf.parameterName}"
+       th:value="${_csrf.token}"/>
+</body>
+</html>
