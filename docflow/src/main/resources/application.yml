@@ -1,2 +1,23 @@
 spring.jms.isPubSubDomain: true
-feign.hystrix.enabled: true
+feign.hystrix.enabled: false
+feign.oauth2.enabled: true
+server:
+  port: 9090
+
+service:
+  hr:
+    url: http://localhost:8080
+
+security.oauth2.resource.jwt.key-uri: http://localhost:6060/oauth/token_key
+security.oauth2.client.client-id: hr
+security.oauth2.client.client-secret: hr
+
+feign:
+  client:
+    config:
+      hr:
+        loggerLevel: full
+logging:
+  level:
+    pl.com.bottega.docflowjee.docflow.adapters.client: DEBUG
+

@@ -8,6 +8,7 @@ import pl.com.bottega.eventsourcing.EventPublisher;
 import pl.com.bottega.eventsourcing.EventStore;
 
 import javax.persistence.EntityManager;
+import javax.persistence.EntityTransaction;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;

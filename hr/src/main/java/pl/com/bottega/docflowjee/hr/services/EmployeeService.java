@@ -61,6 +61,7 @@ public class EmployeeService {
 				.departmentIds(employee.getDepartments().stream().map(Department::getId).collect(Collectors.toList()))
 				.supervisorId(supervisor == null ? null : supervisor.getId())
 				.supervisorsHierarchy(supervisorsHierarchy(supervisor))
+				.position(employee.getPosition())
 				.build();
 
 	}

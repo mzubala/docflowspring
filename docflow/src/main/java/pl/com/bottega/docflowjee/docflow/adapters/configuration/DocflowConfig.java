@@ -19,10 +19,13 @@ import pl.com.bottega.docflowjee.docflow.adapters.client.HrClient;
 import pl.com.bottega.docflowjee.docflow.adapters.client.RestClientHrFacade;
 import pl.com.bottega.docflowjee.docflow.adapters.jms.JMSPublisher;
 import pl.com.bottega.docflowjee.docflow.adapters.repository.EventStoreDocumentRepository;
+import pl.com.bottega.docflowjee.eventsourcing.jpa.JPAEventStore;
 import pl.com.bottega.eventsourcing.EventPublisher;
 import pl.com.bottega.eventsourcing.EventStore;
 import pl.com.bottega.eventsourcing.EventStoreRepository;
+import pl.com.bottega.eventsourcing.InMemoryEventStore;
 
+import javax.persistence.EntityManager;
 import java.time.Clock;
 
 @Configuration
@@ -46,6 +49,11 @@ public class DocflowConfig {
     @Bean
     public DocumentRepository documentRepository(EventStoreRepository<Document> eventStoreRepository, Clock clock, EmployeePermissionsPolicy employeePermissionsPolicy) {
         return new EventStoreDocumentRepository(eventStoreRepository, clock, employeePermissionsPolicy);
+    }
+
+    @Bean
+    public EventStore jpaEventStore(EventPublisher eventPublisher) {
+        return new InMemoryEventStore(eventPublisher);
     }
 
     @Bean
