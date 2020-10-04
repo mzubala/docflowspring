@@ -13,7 +13,6 @@ import org.springframework.security.oauth2.config.annotation.web.configuration.E
 import java.util.List;
 
 @Configuration
-@EnableOAuth2Client
 public class OAuth2ClientConfig {
 
     @Bean
@@ -23,11 +22,7 @@ public class OAuth2ClientConfig {
 
     private OAuth2ProtectedResourceDetails resourceDetails() {
         var details = new ClientCredentialsResourceDetails();
-        details.setAccessTokenUri("http://localhost:6060/oauth/token");
-        details.setClientId("docflow");
-        details.setClientSecret("docflow");
-        details.setGrantType("client_credentials");
-        details.setScope(List.of("docflow"));
+        // TODO set details here
         return details;
     }
 

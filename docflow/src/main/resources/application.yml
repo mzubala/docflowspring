@@ -17,7 +17,7 @@ feign:
     config:
       hr:
         loggerLevel: full
+
 logging:
   level:
     pl.com.bottega.docflowjee.docflow.adapters.client: DEBUG
-
