@@ -10,7 +10,6 @@ logging:
     org.springframework.boot.autoconfigure: DEBUG
 
 security:
-  public-key: -----BEGIN PUBLIC KEY-----MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAvnPSL2jN91l/M6glbRI3PHoJvY1YCGr5S+vO/tTtMZdBrs7F6hQL0rkt+ZG8oFMVqocA5o4l5GozQ2sNqR6K2JDODdKeeIyazHX+iVhDmGmioJrq7O0jQZytw/zo0xL5UG9OnyLz8ucpWwmNCW+Flm5WOWN9LKTSHAR9Yk7LAud5L0gG/ACO34E/3gF4CjDNSsMCqKbxW2vLsOYcT65566iDkS3ne4zZiVYrUi+CqRvSdmonavVK6iKnA8+CI9g9eUykNOoS1GBbjuSrv9CNJM3M7fVnLhgS7WhSgifvRJ/tW2/CDMgUberRX8dsAdb9zHecz+fJvjUES54baBtWMwIDAQAB-----END PUBLIC KEY-----
   private-key-file: docflow-authorization.jks
   key-pass: 123456
   key-alias: docflow-authorization
@@ -19,3 +18,9 @@ spring.datasource.url: jdbc:h2:mem:testdb
 spring.datasource.username: sa
 spring.datasource.password:
 spring.datasource.initialization-mode: always
+
+spring:
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: validate

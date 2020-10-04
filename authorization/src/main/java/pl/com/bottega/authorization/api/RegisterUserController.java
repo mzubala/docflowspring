@@ -9,7 +9,7 @@ import pl.com.bottega.authorization.users.RegisterUserCommand;
 import pl.com.bottega.authorization.users.UserRegistrationService;
 
 @RestController
-@RequestMapping("/register")
+@RequestMapping("/registration")
 public class RegisterUserController {
 
     @Autowired
