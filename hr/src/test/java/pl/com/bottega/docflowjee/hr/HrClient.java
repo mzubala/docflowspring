@@ -6,6 +6,8 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.provider.token.store.JwtAccessTokenConverter;
 import org.springframework.stereotype.Component;
 import pl.com.bottega.docflowjee.hr.controller.request.CreateDepartmentRequest;
 import pl.com.bottega.docflowjee.hr.controller.response.ResourceCreatedResponse;
@@ -20,6 +22,9 @@ class HrClient {
 
     @Autowired
     private TestRestTemplate restTemplate;
+
+    @Autowired
+    private JwtAccessTokenConverter converter;
 
     ResponseEntity<Void> updateEmployee(Long empId, EmployeeRequestExample example) {
         var requestEntity = new RequestEntity<>(example.toRequest(), HttpMethod.PUT, uri("/employees/" + empId));

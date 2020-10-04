@@ -1,6 +1,8 @@
 package pl.com.bottega.docflowjee.hr.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.oauth2.core.OAuth2AccessToken;
+import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.web.bind.annotation.*;
 import pl.com.bottega.docflowjee.hr.controller.request.EmployeeRequest;
 import pl.com.bottega.docflowjee.hr.controller.response.ResourceCreatedResponse;
@@ -19,7 +21,7 @@ public class EmployeeController {
 	private EmployeeService employeeService;
 
 	@PostMapping
-	public ResourceCreatedResponse create(@Valid @RequestBody EmployeeRequest request) {
+	public ResourceCreatedResponse create(@Valid @RequestBody EmployeeRequest request, OAuth2Authentication auth) {
 		var employee = new CreateEmployeeCommand(
 				request.getFirstName(), request.getLastName(), request.getDepartmentIds(), request.getSupervisorId(),
 				request.getPosition()

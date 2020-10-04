@@ -1,2 +1,7 @@
 spring.jpa.show-sql: true
 spring.jpa.properties.hibernate.format_sql: true
+
+security.oauth2.resource.jwt.key-uri: http://localhost:6060/oauth/token_key
+
+security.oauth2.client.client-id: hr
+security.oauth2.client.client-secret: hr

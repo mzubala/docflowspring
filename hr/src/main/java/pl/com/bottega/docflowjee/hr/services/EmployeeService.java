@@ -33,6 +33,7 @@ public class EmployeeService {
 		if(command.getSupervisorId() != null) {
 			employee.setSupervisor(findEmployeeByIdOrThrow(command.getSupervisorId()));
 		}
+		employee.setPosition(command.getPosition());
 		employee = employeeRepository.save(employee);
 		return employee.getId();
 	}
