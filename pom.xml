@@ -22,6 +22,7 @@
         <module>eventsourcing</module>
         <module>eventstore-jpa</module>
         <module>eventstore-mongo</module>
+        <module>sandbox</module>
     </modules>
 
     <build>
