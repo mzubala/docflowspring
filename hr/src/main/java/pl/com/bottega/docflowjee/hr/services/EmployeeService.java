@@ -1,7 +1,10 @@
 package pl.com.bottega.docflowjee.hr.services;
 
 import com.google.common.collect.Sets;
+import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import pl.com.bottega.docflowjee.hr.controller.error.NoSuchEmployeeException;
 import pl.com.bottega.docflowjee.hr.controller.response.ResourceCreatedResponse;
@@ -17,6 +20,7 @@ import java.util.stream.Collectors;
 
 @Service
 @Transactional
+@Slf4j
 public class EmployeeService {
 
 	@Autowired
@@ -25,6 +29,13 @@ public class EmployeeService {
 	@Autowired
 	private DepartmentRepository departmentRepository;
 
+	@Autowired
+	private ApplicationEventPublisher publisher;
+
+	@Autowired
+	private NotificationService notificationService;
+
+	@SneakyThrows
 	public Long create(CreateEmployeeCommand command) {
 		var employee = new Employee();
 		employee.setFirstName(command.getFirstName());
@@ -34,6 +45,11 @@ public class EmployeeService {
 			employee.setSupervisor(findEmployeeByIdOrThrow(command.getSupervisorId()));
 		}
 		employee = employeeRepository.save(employee);
+		var somethingInTheFuture = notificationService.getSomething();
+		var somethingElseInTheFuture = notificationService.getSomethingElse();
+		somethingInTheFuture
+				.thenCombine(somethingElseInTheFuture, (s1, s2) -> s1 + s2)
+				.thenAccept(s -> log.info(s)).get();
 		return employee.getId();
 	}
 
